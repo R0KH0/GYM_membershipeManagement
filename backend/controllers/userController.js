@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 
 
 // create user
-export const createUser = async (req, res) =>{
+const createUser = async (req, res) =>{
     const { name , email, password, role } = req.body;
 
     try{
@@ -31,3 +31,4 @@ export const createUser = async (req, res) =>{
   }
 };
 
+export default createUser;

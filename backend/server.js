@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js"
+import cookieParser from "cookie-parser";
 
 // Load environment variables
 dotenv.config();
@@ -12,10 +13,17 @@ connectDB();
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+//allows cookies
+app.use(cookieParser());
+// CORS configuration
+app.use(cors({
+  origin: "http://localhost:3000", // frontend URL
+  credentials: true, // allow cookies
+}));
 
 // Routes
 app.use("/api/users", userRoutes);//user routes
