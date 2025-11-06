@@ -4,6 +4,8 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js"
 import cookieParser from "cookie-parser";
+import passportConfig from "./config/passport.js";
+import passport from "passport";    
 
 // Load environment variables
 dotenv.config();
@@ -17,6 +19,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Initialize Passport
+app.use(passport.initialize());
+passportConfig(passport);
+
 //allows cookies
 app.use(cookieParser());
 // CORS configuration
@@ -27,6 +33,8 @@ app.use(cors({
 
 // Routes
 app.use("/api/users", userRoutes);//user routes
+
+
 
 const PORT = process.env.PORT || 5000;
 
