@@ -1,6 +1,7 @@
 import express from "express";
 import createUser from "../controllers/userController.js"
 import loginUser from "../controllers/logingContoller.js";
+import { authorizeRoles } from "../middleware/authMiddleware.js";
 import passport from "passport";
 
 
@@ -8,7 +9,7 @@ const router = express.Router();
 
 
 // Creat user Route
-router.post("/create", createUser);
+router.post("/create", passport.authenticate("jwt", { session: false }), authorizeRoles("admin", "super-admin"), createUser);
 router.post("/login", loginUser);
 
 
@@ -20,14 +21,6 @@ router.get(
     res.json({ message: "Profile data", user: req.user });
   }
 );
-
-// Role-based access
-const authorizeRoles = (...roles) => (req, res, next) => {
-  if (!roles.includes(req.user.role)) {
-    return res.status(403).json({ message: "Access denied" });
-  }
-  next();
-};
 
 // Admin-only route
 router.get(

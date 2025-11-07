@@ -9,6 +9,16 @@ const createUser = async (req, res) =>{
     const { name , email, password, role } = req.body;
 
     try{
+        // Check if the requester is an Admin or SuperAdmin
+        if (req.user.role === "user") {
+            return res.status(403).json({ message: "Users cannot create new accounts" });
+        }
+
+        // Prevent Admin from creating Admins or SuperAdmins
+        if (req.user.role === "admin" && role !== "user") {
+            return res.status(403).json({ message: "Admins can only create regular users" });
+        }
+
         // if user already exits
         const existingUser = await User.findOne({email});
         if(existingUser){
@@ -24,7 +34,6 @@ const createUser = async (req, res) =>{
             name: savedUser.name,
             email: savedUser.email,
             role: savedUser.role,
-            token: generateToken(savedUser._id),
         });
     }catch (error) {
     res.status(500).json({ message: error.message });

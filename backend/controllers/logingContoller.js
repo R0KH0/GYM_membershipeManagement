@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import generateToken from "../utils/generateToken.js";
 import User from "../models/userModel.js";
 
-
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
