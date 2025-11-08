@@ -26,6 +26,7 @@ passportConfig(passport);
 
 //allows cookies
 app.use(cookieParser());
+
 // CORS configuration
 app.use(cors({
   origin: "http://localhost:3000", // frontend URL

@@ -1,5 +1,5 @@
 import express from "express";
-import createUser from "../controllers/userController.js"
+import { createUser, getAllUsers} from "../controllers/userController.js"
 import loginUser from "../controllers/logingContoller.js";
 import { authorizeRoles } from "../middleware/authMiddleware.js";
 import passport from "passport";
@@ -9,8 +9,9 @@ const router = express.Router();
 
 
 // Creat user Route
-router.post("/create", passport.authenticate("jwt", { session: false }), authorizeRoles("admin", "super-admin"), createUser);
-router.post("/login", loginUser);
+router.post("/login", loginUser); //loging route
+router.post("/create", passport.authenticate("jwt", { session: false }), authorizeRoles("admin", "super-admin"), createUser); // create user route
+router.get("/all", passport.authenticate("jwt", { session: false }), getAllUsers); //get users route
 
 
 // Protected route for all logged-in users
