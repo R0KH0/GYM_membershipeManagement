@@ -164,3 +164,34 @@ export const updateUserByName = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+// Delete user by name
+export const deleteUserByName = async (req, res) => {
+  try {
+    const { name } = req.query;
+    const actor = req.user;
+
+    const targetUser = await User.findOne({ name });
+    if (!targetUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Normal users cannot delete anyone
+    if (actor.role === "user") {
+      return res.status(403).json({ message: "Access denied: users cannot delete any account" });
+    }
+
+
+    // Admin can only delete normal users
+    if (actor.role === "admin" && targetUser.role !== "user") {
+      return res.status(403).json({ message: "Access denied: admin can delete only normal users" });
+    }
+
+    // Super-admin can delete anyone
+    await User.findByIdAndDelete(targetUser._id);
+    res.json({ message: `${targetUser.name} has been deleted successfully` });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

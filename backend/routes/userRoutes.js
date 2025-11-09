@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser, getAllUsers, getUserByName, updateUserByName} from "../controllers/userController.js"
+import { createUser, getAllUsers, getUserByName, updateUserByName, deleteUserByName} from "../controllers/userController.js"
 import loginUser from "../controllers/logingContoller.js";
 import { authorizeRoles } from "../middleware/authMiddleware.js";
 import passport from "passport";
@@ -14,7 +14,7 @@ router.post("/create", passport.authenticate("jwt", { session: false }), authori
 router.get("/all", passport.authenticate("jwt", { session: false }), getAllUsers); //get users route
 router.get("/search", passport.authenticate("jwt", { session: false }), getUserByName); //get user by name route
 router.put("/update", passport.authenticate("jwt", { session: false }), authorizeRoles("admin", "super-admin"), updateUserByName); //update user by name route
-
+router.delete("/delete", passport.authenticate("jwt", { session: false }), authorizeRoles("admin", "super-admin"), deleteUserByName);
 
 // Protected route for all logged-in users
 router.get(
