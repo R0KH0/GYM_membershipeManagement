@@ -10,12 +10,12 @@ const router = express.Router();
 
 // Creat user Route
 router.post("/login", loginUser); //loging route
-router.post("/create", passport.authenticate("jwt", { session: false }), authorizeRoles("admin", "super-admin"), createUser); // create user route
-router.get("/all", passport.authenticate("jwt", { session: false }), getAllUsers); //get users route
-router.get("/search", passport.authenticate("jwt", { session: false }), getUserByName); //get user by name route
-router.put("/update", passport.authenticate("jwt", { session: false }), authorizeRoles("admin", "super-admin"), updateUserByName); //update user by name route
-router.delete("/delete", passport.authenticate("jwt", { session: false }), authorizeRoles("admin", "super-admin"), deleteUserByName);
-
+router.use(passport.authenticate("jwt", { session: false }));// require a valid JWT
+router.post("/create", authorizeRoles("admin", "super-admin"), createUser); // create user route
+router.get("/all", getAllUsers); //get users route
+router.get("/search", getUserByName); //get user by name route
+router.put("/update", updateUserByName); //update user by name route
+router.delete("/delete", authorizeRoles("admin", "super-admin"), deleteUserByName);
 // Protected route for all logged-in users
 router.get(
   "/profile",
