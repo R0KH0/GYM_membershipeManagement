@@ -37,20 +37,38 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-//get user by name
-const getUserByname = async (req, res) => {
-    try {
-        const target = await User.findOne({ name: req.params.name }).select("-password");
-        if (!target) {
-            return res.status(404).json({ message: "User not found" });
-        }
-        if (!canManageUser(req.user, target)) {
-            return res.status(403).json({ message: "Access denied" });
-        }
-    }catch (error) {
-        res.status(500).json({ message: error.message });
+// Get user by name
+export const getUserByName = async (req, res) => {
+  try {
+    const name = req.query.name;
+
+    // If super-admin can find anyone
+    if (req.user.role === "super-admin") {
+      const user = await User.findOne({ name }).select("-password");
+      if (!user) return res.status(404).json({ message: "User not found" });
+      return res.json(user);
     }
-}
+
+    // If admin only normal users
+    if (req.user.role === "admin") {
+      const user = await User.findOne({ name, role: "user" }).select("-password");
+      if (!user) return res.status(404).json({ message: "User not found or not allowed" });
+      return res.json(user);
+    }
+
+    // Normal users can only view their own info
+    if (req.user.role === "user") {
+      if (req.user.name !== name) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const user = await User.findOne({ name: req.user.name }).select("-password");
+      return res.json(user);
+    }
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // create user
 export const createUser = async (req, res) =>{
