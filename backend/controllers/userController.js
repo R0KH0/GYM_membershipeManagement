@@ -10,6 +10,42 @@ const canManageUser = ( actor, target ) => {
     return false;
 }
 
+// create user
+export const createUser = async (req, res) =>{
+    const { name , email, password, role } = req.body;
+
+    try{
+        // Check if the requester is an Admin or SuperAdmin
+        if (req.user.role === "user") {
+            return res.status(403).json({ message: "Users cannot create new accounts" });
+        }
+
+        // Prevent Admin from creating Admins or SuperAdmins
+        if (req.user.role === "admin" && role !== "user") {
+            return res.status(403).json({ message: "Admins can only create regular users" });
+        }
+
+        // if user already exits
+        const existingUser = await User.findOne({email});
+        if(existingUser){
+            return res.status(400).json({ message: "User already exists" });
+        }
+
+        //create new one
+        const user = new User({name, email, password, role: role || "user"});
+        const savedUser = await user.save();
+        
+        res.status(201).json({
+            _id: savedUser._id,
+            name: savedUser.name,
+            email: savedUser.email,
+            role: savedUser.role,
+        });
+    }catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 //get all users
 export const getAllUsers = async (req, res) => {
   try {
@@ -70,38 +106,61 @@ export const getUserByName = async (req, res) => {
   }
 };
 
-// create user
-export const createUser = async (req, res) =>{
-    const { name , email, password, role } = req.body;
+// Update user by name
+export const updateUserByName = async (req, res) => {
+  try {
+    const { name } = req.query; 
+    const { newName, email, password, role } = req.body;
 
-    try{
-        // Check if the requester is an Admin or SuperAdmin
-        if (req.user.role === "user") {
-            return res.status(403).json({ message: "Users cannot create new accounts" });
-        }
+    // Find user by name
+    const user = await User.findOne({ name });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-        // Prevent Admin from creating Admins or SuperAdmins
-        if (req.user.role === "admin" && role !== "user") {
-            return res.status(403).json({ message: "Admins can only create regular users" });
-        }
+    // Role restrictions
+    if (req.user.role === "user") {
+      // User can only update their own profile
+      if (req.user.name !== name) {
+        return res.status(403).json({ message: "Access denied: cannot update another user" });
+      }
 
-        // if user already exits
-        const existingUser = await User.findOne({email});
-        if(existingUser){
-            return res.status(400).json({ message: "User already exists" });
-        }
+      // Allow only password change
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+      } else {
+        return res.status(400).json({ message: "Only password update is allowed" });
+      }
+    }
 
-        //create new one
-        const user = new User({name, email, password, role: role || "user"});
-        const savedUser = await user.save();
-        
-        res.status(201).json({
-            _id: savedUser._id,
-            name: savedUser.name,
-            email: savedUser.email,
-            role: savedUser.role,
-        });
-    }catch (error) {
+    // Admin can update normal users only (not super-admins or other admins)
+    if (req.user.role === "admin") {
+      if (user.role === "admin" || user.role === "super-admin") {
+        return res.status(403).json({ message: "Access denied: cannot update admin or super-admin" });
+      }
+    }
+
+    // Super-admin can update anyone
+    if (req.user.role === "super-admin" || req.user.role === "admin") {
+      if (newName) user.name = newName;
+      if (email) user.email = email;
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+      }
+      if (role && req.user.role === "super-admin") user.role = role; // only super-admin can change role
+    }
+
+    const updatedUser = await user.save();
+    res.json({
+      message: "User updated successfully",
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+      },
+    });
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
