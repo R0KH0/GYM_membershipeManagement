@@ -6,7 +6,8 @@ import userRoutes from "./routes/userRoutes.js";
 import memberRoutes from "./routes/memberRoute.js";
 import cookieParser from "cookie-parser";
 import passportConfig from "./config/passport.js";
-import passport from "passport";    
+import passport from "passport";
+import { startCronJobs } from "./utils/cronJobs.js";
 
 // Load environment variables
 dotenv.config();
@@ -43,4 +44,5 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port http://localhost:5000/`);
+  startCronJobs(); // <<< ENABLE CRON JOBS
 });

@@ -1,17 +1,18 @@
 import mongoose from "mongoose";
 
 const memberSchema = new mongoose.Schema({
-  fullName: {
-    type: String,
-    required: true,
-  },
-  phoneNumber: {
-    type: String,
-    required: true,
-    match: [/^[0-9]{8,15}$/, "Please enter a valid phone number"],
-  },
-  email: {type: String, lowecase: true },
-}, { timestamps: true });
+    firstName: { type: String, required: true },
+    lastName: { type: String },
+    email: { type: String },
+    phone: { type: String },
+    status: { type: String, enum: ['active','expired','frozen','pending','cancelled'], default: 'pending' },
+    startDate: { type: Date },
+    endDate: { type: Date },
+    notes: { type: String },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    paymentStatus: { type: String, enum: ['paid', 'unpaid', 'partial'], default: 'unpaid' }
+  },{ timestamps: true }
+);
 
 const Member = mongoose.model("Member", memberSchema);
 
