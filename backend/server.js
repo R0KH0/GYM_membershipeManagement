@@ -37,6 +37,7 @@ app.use(cors({
 // Routes
 app.use("/api/users", userRoutes);//user routes
 app.use("/api/members", memberRoutes);//member routes
+app.use("/api/payments", paymentRoutes);//payment routes
 
 
 

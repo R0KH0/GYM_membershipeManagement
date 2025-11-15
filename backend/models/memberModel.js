@@ -10,7 +10,7 @@ const memberSchema = new mongoose.Schema({
     endDate: { type: Date },
     notes: { type: String },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    paymentStatus: { type: String, enum: ['paid', 'unpaid', 'partial'], default: 'unpaid' }
+    paymentStatus: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' }
   },{ timestamps: true }
 );
 
