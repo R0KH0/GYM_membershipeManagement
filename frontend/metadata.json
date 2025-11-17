@@ -1,0 +1,5 @@
+{
+  "name": "Admin Dashboard UI",
+  "description": "A modern, dark-themed admin dashboard for managing members and tracking earnings, inspired by the provided UI mockups. It features a login screen, a main dashboard with statistical cards, data tables, and charts for visualizing earnings.",
+  "requestFramePermissions": []
+}
