@@ -1,5 +1,5 @@
 import React from 'react';
-import PandaLogo from './icons/PandaLogo';
+import Logo from './icons/Logo';
 import DashboardIcon from './icons/DashboardIcon';
 import EarningIcon from './icons/EarningIcon';
 import MembersIcon from './icons/MembersIcon';
@@ -28,7 +28,7 @@ const Sidebar = ({ activePage, setActivePage }) => {
     return (
         <aside className="w-64 bg-brand-gray p-6 flex-shrink-0 flex-col hidden lg:flex">
             <div className="flex items-center justify-center mb-12">
-                <PandaLogo className="h-16 w-16" />
+                <Logo className="h-16 w-16" />
             </div>
             <nav className="space-y-2">
                 {navItems.map((item) => (

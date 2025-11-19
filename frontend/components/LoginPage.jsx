@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PandaLogo from './icons/PandaLogo';
+import PandaLogo from './icons/Logo';
 
 const LoginPage = ({ onLogin }) => {
     const [email, setEmail] = useState('');

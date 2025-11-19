@@ -19,4 +19,4 @@ const PandaLogo = ({ className }) => (
     </svg>
 );
 
-export default PandaLogo;
+export default Logo;
