@@ -1,0 +1,42 @@
+import React from 'react';
+import { 
+  LayoutDashboard, 
+  DollarSign, 
+  Radio, 
+  Users, 
+  Settings, 
+  LogOut, 
+  Plus, 
+  Search, 
+  Filter, 
+  MoreVertical, 
+  Edit2, 
+  Headphones,
+  UserPlus,
+  X,
+  ChevronDown,
+  Lock,
+  Mail,
+  User
+} from 'lucide-react';
+
+export const Icons = {
+  Dashboard: LayoutDashboard,
+  Earnings: DollarSign,
+  Radio: Radio,
+  Members: Users,
+  Settings: Settings,
+  Logout: LogOut,
+  Plus: Plus,
+  Search: Search,
+  Filter: Filter,
+  More: MoreVertical,
+  Edit: Edit2,
+  Brand: Headphones,
+  CreateUser: UserPlus,
+  Close: X,
+  Down: ChevronDown,
+  Lock: Lock,
+  Mail: Mail,
+  User: User
+};
