@@ -1,0 +1,57 @@
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Icons } from './Icons';
+
+export const Sidebar: React.FC = () => {
+  const location = useLocation();
+  const path = location.pathname;
+
+  const isActive = (route: string) => {
+    return path === route || (route === '/members' && path.startsWith('/members'));
+  };
+
+  const navItems = [
+    { name: 'Dashboard', path: '/dashboard', icon: Icons.Dashboard },
+    { name: 'Members', path: '/members', icon: Icons.Members },
+    { name: 'Earnings', path: '/earnings', icon: Icons.Earnings },
+  ];
+
+  return (
+    <div className="w-64 h-screen bg-black border-r border-panda-border flex flex-col sticky top-0">
+      {/* Brand / Logo */}
+      <div className="h-20 flex items-center px-6 gap-3 border-b border-panda-border">
+        <div className="relative">
+          <div className="w-10 h-10 bg-panda-card rounded-full flex items-center justify-center border border-panda-border shadow-neon">
+            <Icons.Brand className="text-panda-red w-6 h-6" />
+          </div>
+        </div>
+        <div>
+          <h1 className="text-white font-bold text-lg tracking-wide">IRON<span className="text-panda-red">PANDA</span></h1>
+          <p className="text-xs text-gray-500">Manager Pro</p>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 py-6 px-3 space-y-1">
+        {navItems.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
+              isActive(item.path)
+                ? 'bg-panda-red text-white shadow-[0_0_15px_rgba(230,0,0,0.4)] border border-transparent'
+                : 'text-gray-400 hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <item.icon
+              className={`mr-3 h-5 w-5 flex-shrink-0 transition-colors duration-200 ${
+                isActive(item.path) ? 'text-white' : 'text-gray-500 group-hover:text-white'
+              }`}
+            />
+            {item.name}
+          </Link>
+        ))}
+      </nav>
+    </div>
+  );
+};
