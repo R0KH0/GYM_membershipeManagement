@@ -103,8 +103,8 @@ IronPanda Gym Management
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-[#151515] border border-panda-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm overflow-y-auto p-4">
+      <div className="w-full max-w-lg bg-[#151515] border border-panda-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 my-auto">
         <div className="px-6 py-4 border-b border-panda-border flex justify-between items-center bg-[#111]">
           <h3 className="text-white font-semibold text-lg flex items-center gap-2">
             {mode === 'add' ? <Icons.Plus className="w-5 h-5 text-panda-red" /> : <Icons.Edit className="w-5 h-5 text-panda-red" />}
@@ -116,7 +116,7 @@ IronPanda Gym Management
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Full Name</label>
               <input
@@ -139,7 +139,7 @@ IronPanda Gym Management
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
              <div>
               <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Join Date</label>
               <input
@@ -161,7 +161,7 @@ IronPanda Gym Management
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Membership Status</label>
               <div className="relative">
@@ -194,7 +194,7 @@ IronPanda Gym Management
               <Icons.Earnings className="w-4 h-4 text-panda-red" />
               Payment Details
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Amount ($)</label>
                 <div className="relative">

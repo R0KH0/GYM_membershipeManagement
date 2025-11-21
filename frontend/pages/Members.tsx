@@ -109,11 +109,11 @@ export const Members: React.FC = () => {
     <div className="flex-1 bg-black min-h-screen flex flex-col">
       <TopBar title="Members Management" />
       
-      <main className="p-8 space-y-8">
+      <main className="p-4 md:p-8 space-y-6 md:space-y-8">
         
         {/* Top Cards */}
         {/* TODO: fetch from /api/members/stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
            <div className="bg-[#111] border border-panda-border p-6 rounded-2xl">
              <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Total Members</p>
              <p className="text-3xl font-bold text-white">1,240</p>
@@ -205,7 +205,7 @@ export const Members: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex gap-3 w-full xl:w-auto">
+            <div className="flex flex-wrap gap-3 w-full xl:w-auto">
               {(searchTerm || statusFilter !== 'all' || dateFilter || creatorFilter) && (
                 <button 
                   onClick={clearFilters}
@@ -239,7 +239,7 @@ export const Members: React.FC = () => {
         {/* Table */}
         <div className="bg-[#111] border border-panda-border rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left whitespace-nowrap">
               <thead>
                 <tr className="border-b border-panda-border bg-white/5">
                   <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider w-16 text-center">Edit</th>

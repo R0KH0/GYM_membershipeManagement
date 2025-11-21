@@ -1,20 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { HashRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
 import { Members } from './pages/Members';
 import { Earnings } from './pages/Earnings';
 import { Login } from './pages/Login';
+import { MobileMenuContext } from './contexts/MobileMenuContext';
 
 // Layout component to wrap protected routes with Sidebar
 const AppLayout = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggle = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const close = () => setIsMobileMenuOpen(false);
+
   return (
-    <div className="flex min-h-screen bg-black text-white selection:bg-panda-red selection:text-white">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Outlet />
+    <MobileMenuContext.Provider value={{ isOpen: isMobileMenuOpen, toggle, close }}>
+      <div className="flex min-h-screen bg-black text-white selection:bg-panda-red selection:text-white relative">
+        <Sidebar />
+        
+        {/* Mobile Overlay */}
+        {isMobileMenuOpen && (
+          <div 
+            className="fixed inset-0 bg-black/80 z-40 md:hidden backdrop-blur-sm animate-in fade-in duration-200"
+            onClick={close}
+          />
+        )}
+
+        <div className="flex-1 flex flex-col min-w-0 w-full">
+          <Outlet />
+        </div>
       </div>
-    </div>
+    </MobileMenuContext.Provider>
   );
 };
 

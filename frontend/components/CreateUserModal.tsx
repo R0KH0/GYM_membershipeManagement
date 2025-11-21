@@ -26,7 +26,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="w-full max-w-md bg-[#151515] border border-panda-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
         <div className="px-6 py-4 border-b border-panda-border flex justify-between items-center bg-[#111]">
           <h3 className="text-white font-semibold text-lg flex items-center gap-2">

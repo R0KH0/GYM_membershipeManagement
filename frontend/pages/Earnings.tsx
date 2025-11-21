@@ -42,7 +42,7 @@ const MOCK_TRANSACTIONS: Transaction[] = [
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#111] border border-panda-border p-3 rounded-lg shadow-xl">
+      <div className="bg-[#111] border border-panda-border p-3 rounded-lg shadow-xl z-50">
         <p className="text-gray-300 text-sm mb-1">{label}</p>
         <p className="text-panda-red font-bold text-lg">
           ${payload[0].value.toLocaleString()}
@@ -105,20 +105,20 @@ IronPanda Gym Management
     <div className="flex-1 bg-black min-h-screen flex flex-col">
       <TopBar title="Earnings" />
       
-      <main className="p-8 space-y-8 overflow-y-auto pb-20">
+      <main className="p-4 md:p-8 space-y-6 md:space-y-8 overflow-y-auto pb-20">
         
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           <StatCard title="Total Earning" value="$342,500" change="+15.3%" isPositive={true} />
           <StatCard title="This Month Earning" value="$38,200" change="+8.2%" isPositive={true} />
           <StatCard title="YTD Earning" value="$294,100" change="+12.1%" isPositive={true} />
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           
           {/* Revenue Growth Chart */}
-          <div className="bg-[#111] border border-panda-border p-6 rounded-2xl">
+          <div className="bg-[#111] border border-panda-border p-4 md:p-6 rounded-2xl">
              <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-white">Revenue Growth</h3>
                 <div className="flex gap-2">
@@ -126,7 +126,7 @@ IronPanda Gym Management
                 </div>
              </div>
              {/* TODO: Load chart data here */}
-             <div className="h-72 w-full">
+             <div className="h-60 md:h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={earningsData}>
                     <defs>
@@ -146,13 +146,13 @@ IronPanda Gym Management
           </div>
 
           {/* Monthly Earnings Bar Chart */}
-          <div className="bg-[#111] border border-panda-border p-6 rounded-2xl">
+          <div className="bg-[#111] border border-panda-border p-4 md:p-6 rounded-2xl">
              <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-white">Monthly Earnings</h3>
                 <button className="text-gray-500 hover:text-white"><Icons.More className="w-5 h-5" /></button>
              </div>
              {/* TODO: Load chart data here */}
-             <div className="h-72 w-full">
+             <div className="h-60 md:h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={earningsData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
@@ -173,7 +173,7 @@ IronPanda Gym Management
             <button className="text-xs text-panda-red hover:text-white transition-colors">View All</button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left whitespace-nowrap">
               <thead>
                 <tr className="border-b border-panda-border bg-white/5">
                   <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Member</th>

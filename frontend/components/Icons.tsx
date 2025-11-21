@@ -18,7 +18,8 @@ import {
   Lock,
   Mail,
   User,
-  Download
+  Download,
+  Menu
 } from 'lucide-react';
 
 export const Icons = {
@@ -40,5 +41,6 @@ export const Icons = {
   Lock: Lock,
   Mail: Mail,
   User: User,
-  Download: Download
+  Download: Download,
+  Menu: Menu
 };

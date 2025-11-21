@@ -40,7 +40,7 @@ const memberActivityData = [
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#111] border border-panda-border p-3 rounded-lg shadow-xl">
+      <div className="bg-[#111] border border-panda-border p-3 rounded-lg shadow-xl z-50">
         <p className="text-gray-300 text-sm mb-1">{label}</p>
         <p className="text-panda-red font-bold text-lg">
           {payload[0].name === 'value' ? '$' : ''}{payload[0].value.toLocaleString()}
@@ -75,26 +75,26 @@ export const Dashboard: React.FC = () => {
     <div className="flex-1 bg-black min-h-screen flex flex-col">
       <TopBar title="Dashboard" />
       
-      <main className="p-8 space-y-8 overflow-y-auto">
+      <main className="p-4 md:p-8 space-y-6 md:space-y-8 overflow-y-auto">
         
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           <StatCard title="Total Earnings" value="$124,500" change="+12.5%" isPositive={true} />
           <StatCard title="This Month Earnings" value="$8,400" change="+5.2%" isPositive={true} />
           <StatCard title="Total Members" value="1,240" change="-1.1%" isPositive={false} />
         </div>
 
         {/* Financial Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           
           {/* Line Chart Container */}
-          <div className="bg-[#111] border border-panda-border p-6 rounded-2xl">
+          <div className="bg-[#111] border border-panda-border p-4 md:p-6 rounded-2xl">
              <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-white">Revenue Growth</h3>
                 <span className="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded">This Month</span>
              </div>
              {/* TODO: Load chart data here */}
-             <div className="h-72 w-full">
+             <div className="h-60 md:h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={monthlyData}>
                     <defs>
@@ -114,13 +114,13 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Bar Chart Container */}
-          <div className="bg-[#111] border border-panda-border p-6 rounded-2xl">
+          <div className="bg-[#111] border border-panda-border p-4 md:p-6 rounded-2xl">
              <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-white">Monthly Earnings</h3>
                 <button className="text-gray-500 hover:text-white"><Icons.More className="w-5 h-5" /></button>
              </div>
              {/* TODO: Load chart data here */}
-             <div className="h-72 w-full">
+             <div className="h-60 md:h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
@@ -136,15 +136,15 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Membership Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           
           {/* Member Growth Chart */}
-          <div className="bg-[#111] border border-panda-border p-6 rounded-2xl">
+          <div className="bg-[#111] border border-panda-border p-4 md:p-6 rounded-2xl">
              <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-white">Member Growth</h3>
                 <span className="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded">YTD</span>
              </div>
-             <div className="h-72 w-full">
+             <div className="h-60 md:h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={memberActivityData}>
                     <defs>
@@ -164,12 +164,12 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Monthly New Members Chart */}
-          <div className="bg-[#111] border border-panda-border p-6 rounded-2xl">
+          <div className="bg-[#111] border border-panda-border p-4 md:p-6 rounded-2xl">
              <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-white">Monthly New Members</h3>
                 <button className="text-gray-500 hover:text-white"><Icons.More className="w-5 h-5" /></button>
              </div>
-             <div className="h-72 w-full">
+             <div className="h-60 md:h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={memberActivityData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
