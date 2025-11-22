@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Icons } from './Icons';
 import { UserModal } from './UserModal';
 import { useMobileMenu } from '../contexts/MobileMenuContext';
+import { api } from '../src/api/axios';
 
 export const TopBar = ({ title }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -28,10 +29,14 @@ export const TopBar = ({ title }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    // TODO: Clear auth tokens
-    navigate('/');
-  };
+const handleLogout = async () => {
+  try {
+    await api.post("api/users/logout"); // backend clears the cookie
+    navigate("/");
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
+};
 
   // Mock Notifications Data
   const notifications = [
