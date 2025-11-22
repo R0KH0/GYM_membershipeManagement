@@ -37,7 +37,7 @@ const memberActivityData = [
 ];
 
 // Custom Tooltip for Recharts to match Dark Theme
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-[#111] border border-panda-border p-3 rounded-lg shadow-xl z-50">
@@ -52,7 +52,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const StatCard = ({ title, value, change, isPositive }: { title: string, value: string, change: string, isPositive: boolean }) => (
+const StatCard = ({ title, value, change, isPositive }) => (
   <div className="bg-[#111] border border-panda-border p-6 rounded-2xl hover:border-white/10 transition-colors duration-300 relative overflow-hidden group">
     <div className="absolute top-0 right-0 w-32 h-32 bg-panda-red/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-panda-red/10 transition-all"></div>
     <h3 className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">{title}</h3>
@@ -70,7 +70,7 @@ const StatCard = ({ title, value, change, isPositive }: { title: string, value: 
   </div>
 );
 
-export const Dashboard: React.FC = () => {
+export const Dashboard = () => {
   return (
     <div className="flex-1 bg-black min-h-screen flex flex-col">
       <TopBar title="Dashboard" />

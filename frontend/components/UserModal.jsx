@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Icons } from './Icons';
-import { User, UserRole } from '../types';
+import { UserRole } from '../types';
 
-interface UserModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  mode: 'add' | 'edit';
-  userData?: User;
-  onSave?: (user: Partial<User> & { password?: string }) => void;
-}
-
-export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, mode, userData, onSave }) => {
+export const UserModal = ({ isOpen, onClose, mode, userData, onSave }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -38,7 +30,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, mode, use
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (onSave) {
       onSave({
@@ -111,7 +103,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, mode, use
               <select
                 className="w-full bg-black border border-panda-border rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-panda-red focus:ring-1 focus:ring-panda-red transition-all appearance-none"
                 value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
               >
                 <option value={UserRole.ADMIN}>Admin</option>
                 <option value={UserRole.TRAINER}>Trainer</option>

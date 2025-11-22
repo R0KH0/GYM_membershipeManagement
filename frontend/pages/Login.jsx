@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icons } from '../components/Icons';
 
-export const Login: React.FC = () => {
+export const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -30,10 +30,10 @@ export const Login: React.FC = () => {
         
         <div className="flex flex-col items-center mb-8">
           <div className="w-16 h-16 bg-panda-card rounded-full flex items-center justify-center border border-panda-border shadow-neon mb-4">
-            <Icons.Brand className="text-panda-red w-8 h-8" />
+            <img src="/img/logo.png" alt="logo" className="text-panda-red w-15 h-15"/>
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Welcome Back</h1>
-          <p className="text-gray-500 text-sm mt-2">Enter your credentials to access the dashboard</p>
+          <p className="text-gray-500 text-sm mt-2">Enter your credentials</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -47,7 +47,7 @@ export const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-black border border-panda-border rounded-lg pl-10 pr-4 py-2.5 text-white focus:border-panda-red focus:ring-1 focus:ring-panda-red focus:outline-none transition-all placeholder-gray-700"
-                placeholder="admin@ironpanda.com"
+                placeholder="example@rokho.com"
               />
             </div>
           </div>
@@ -68,7 +68,6 @@ export const Login: React.FC = () => {
           </div>
 
           <div className="flex justify-end">
-             <a href="#" className="text-xs text-panda-red hover:text-red-400 transition-colors">Forgot Password?</a>
           </div>
 
           <button
@@ -82,7 +81,7 @@ export const Login: React.FC = () => {
 
         <div className="mt-6 pt-6 border-t border-panda-border text-center">
           <p className="text-sm text-gray-500">
-            Don't have an account? <span className="text-white cursor-pointer hover:text-panda-red transition-colors">Contact Admin</span>
+            Proudly created by <a href="https://rokho.netlify.app/" target="_blank" rel="noopener noreferrer" className="text-white cursor-pointer hover:text-panda-red transition-colors">Marwane Rokho</a>
           </p>
         </div>
       </div>

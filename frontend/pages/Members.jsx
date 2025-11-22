@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { TopBar } from '../components/TopBar';
 import { Icons } from '../components/Icons';
-import { Member, MemberStatus } from '../types';
+import { MemberStatus } from '../types';
 import { MemberModal, DeleteConfirmationModal } from '../components/MemberModals';
 
 // Mock Data
-const MOCK_MEMBERS: Member[] = [
+const MOCK_MEMBERS = [
   { id: '1', name: 'Sarah Connor', phone: '+1 (555) 000-1111', joinDate: '2023-10-12', createdBy: 'Marwane Rohko (Admin)', status: MemberStatus.ACTIVE },
   { id: '2', name: 'John Wick', phone: '+1 (555) 999-2222', joinDate: '2023-09-05', createdBy: 'Mike Tyson (Trainer)', status: MemberStatus.FROZEN },
   { id: '3', name: 'Bruce Wayne', phone: '+1 (555) 123-4567', joinDate: '2023-11-01', createdBy: 'Marwane Rohko (Admin)', status: MemberStatus.PENDING },
@@ -19,7 +19,7 @@ const AVAILABLE_CREATORS = [
   "Sarah Connor (Employee)"
 ];
 
-const StatusPill = ({ status }: { status: MemberStatus }) => {
+const StatusPill = ({ status }) => {
   const styles = {
     [MemberStatus.ACTIVE]: 'bg-green-500/10 text-green-500 border-green-500/20',
     [MemberStatus.FROZEN]: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
@@ -34,29 +34,29 @@ const StatusPill = ({ status }: { status: MemberStatus }) => {
   );
 };
 
-export const Members: React.FC = () => {
-  const [members, setMembers] = useState<Member[]>(MOCK_MEMBERS);
+export const Members = () => {
+  const [members, setMembers] = useState(MOCK_MEMBERS);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('');
   const [creatorFilter, setCreatorFilter] = useState('');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-  const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
+  const [modalMode, setModalMode] = useState('add');
+  const [selectedMember, setSelectedMember] = useState(undefined);
 
   // Delete Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+  const [memberToDelete, setMemberToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleEdit = (member: Member) => {
+  const handleEdit = (member) => {
     setSelectedMember(member);
     setModalMode('edit');
     setIsModalOpen(true);
   };
 
-  const handleDeleteClick = (member: Member) => {
+  const handleDeleteClick = (member) => {
     setMemberToDelete(member);
     setIsDeleteModalOpen(true);
   };

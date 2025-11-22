@@ -2,12 +2,7 @@ import React, { useState } from 'react';
 import { Icons } from './Icons';
 import { UserRole } from '../types';
 
-interface CreateUserModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClose }) => {
+export const CreateUserModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,7 +12,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     // TODO: API request to create user
     // fetch('/api/users', { method: 'POST', body: JSON.stringify(formData) })
@@ -80,7 +75,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
             <select
               className="w-full bg-black border border-panda-border rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-panda-red focus:ring-1 focus:ring-panda-red transition-all"
               value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
             >
               <option value={UserRole.EMPLOYEE}>Employee</option>
               <option value={UserRole.TRAINER}>Trainer</option>

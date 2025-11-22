@@ -1,7 +1,7 @@
 import React from 'react';
 import { TopBar } from '../components/TopBar';
 import { Icons } from '../components/Icons';
-import { PaymentType, Transaction } from '../types';
+import { PaymentType } from '../types';
 import {
   BarChart,
   Bar,
@@ -31,7 +31,7 @@ const earningsData = [
 ];
 
 // Mock Data for Transactions
-const MOCK_TRANSACTIONS: Transaction[] = [
+const MOCK_TRANSACTIONS = [
   { id: 't1', memberId: '1', memberName: 'Sarah Connor', date: '2023-12-01', amount: 150, type: PaymentType.SUBSCRIPTION, status: 'completed' },
   { id: 't2', memberId: '4', memberName: 'Clark Kent', date: '2023-12-01', amount: 150, type: PaymentType.RENEWAL, status: 'completed' },
   { id: 't3', memberId: '2', memberName: 'John Wick', date: '2023-11-28', amount: 50, type: PaymentType.FEE, status: 'completed' },
@@ -39,7 +39,7 @@ const MOCK_TRANSACTIONS: Transaction[] = [
   { id: 't5', memberId: '3', memberName: 'Bruce Wayne', date: '2023-11-20', amount: 500, type: PaymentType.SUBSCRIPTION, status: 'completed' },
 ];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-[#111] border border-panda-border p-3 rounded-lg shadow-xl z-50">
@@ -53,7 +53,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const StatCard = ({ title, value, change, isPositive }: { title: string, value: string, change: string, isPositive: boolean }) => (
+const StatCard = ({ title, value, change, isPositive }) => (
   <div className="bg-[#111] border border-panda-border p-6 rounded-2xl hover:border-white/10 transition-colors duration-300 relative overflow-hidden group">
     <div className="absolute top-0 right-0 w-32 h-32 bg-panda-red/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-panda-red/10 transition-all"></div>
     <h3 className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">{title}</h3>
@@ -71,9 +71,9 @@ const StatCard = ({ title, value, change, isPositive }: { title: string, value: 
   </div>
 );
 
-export const Earnings: React.FC = () => {
+export const Earnings = () => {
 
-  const downloadReceipt = (tx: Transaction) => {
+  const downloadReceipt = (tx) => {
     const receiptContent = `
 ------------------------------------------------
            IRONPANDA GYM - RECEIPT

@@ -2,7 +2,6 @@ import React from 'react';
 import { 
   LayoutDashboard, 
   DollarSign, 
-  Radio, 
   Users, 
   Settings, 
   LogOut, 
@@ -10,8 +9,7 @@ import {
   Search, 
   Filter, 
   MoreVertical, 
-  Edit2, 
-  Headphones,
+  Edit2,
   UserPlus,
   X,
   ChevronDown,
@@ -21,13 +19,13 @@ import {
   Download,
   Menu,
   Trash2,
-  UserCog
+  UserCog,
+  BellRing
 } from 'lucide-react';
 
 export const Icons = {
   Dashboard: LayoutDashboard,
   Earnings: DollarSign,
-  Radio: Radio,
   Members: Users,
   Settings: Settings,
   Logout: LogOut,
@@ -36,7 +34,7 @@ export const Icons = {
   Filter: Filter,
   More: MoreVertical,
   Edit: Edit2,
-  Brand: Headphones,
+  Notification: BellRing,
   CreateUser: UserPlus,
   Close: X,
   Down: ChevronDown,

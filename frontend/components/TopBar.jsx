@@ -4,27 +4,23 @@ import { Icons } from './Icons';
 import { UserModal } from './UserModal';
 import { useMobileMenu } from '../contexts/MobileMenuContext';
 
-interface TopBarProps {
-  title: string;
-}
-
-export const TopBar: React.FC<TopBarProps> = ({ title }) => {
+export const TopBar = ({ title }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   
-  const profileRef = useRef<HTMLDivElement>(null);
-  const notificationRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef(null);
+  const notificationRef = useRef(null);
   
   const navigate = useNavigate();
   const { toggle } = useMobileMenu();
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
         setIsProfileOpen(false);
       }
-      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
         setIsNotificationsOpen(false);
       }
     };
@@ -57,7 +53,6 @@ export const TopBar: React.FC<TopBarProps> = ({ title }) => {
           </button>
           <div>
             <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">{title}</h2>
-            <p className="text-xs text-gray-500 mt-0.5 hidden md:block">Welcome back, Admin</p>
           </div>
         </div>
 
@@ -69,7 +64,7 @@ export const TopBar: React.FC<TopBarProps> = ({ title }) => {
               className={`relative text-gray-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5 ${isNotificationsOpen ? 'text-white bg-white/5' : ''}`}
             >
               <span className="absolute top-2 right-2 w-2 h-2 bg-panda-red rounded-full shadow-[0_0_8px_rgba(230,0,0,0.8)] animate-pulse"></span>
-              <Icons.Brand className="w-6 h-6" /> {/* Headphones Logo as Notification Icon */}
+              <Icons.Notification className="w-6 h-6" />
             </button>
 
             {isNotificationsOpen && (

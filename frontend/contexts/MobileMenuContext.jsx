@@ -1,12 +1,6 @@
 import React, { createContext, useContext } from 'react';
 
-interface MobileMenuContextType {
-  isOpen: boolean;
-  toggle: () => void;
-  close: () => void;
-}
-
-export const MobileMenuContext = createContext<MobileMenuContextType>({
+export const MobileMenuContext = createContext({
   isOpen: false,
   toggle: () => {},
   close: () => {},

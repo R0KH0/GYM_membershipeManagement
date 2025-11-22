@@ -3,20 +3,20 @@ import { Link, useLocation } from 'react-router-dom';
 import { Icons } from './Icons';
 import { useMobileMenu } from '../contexts/MobileMenuContext';
 
-export const Sidebar: React.FC = () => {
+export const Sidebar = () => {
   const location = useLocation();
   const path = location.pathname;
   const { isOpen, close } = useMobileMenu();
 
-  const isActive = (route: string) => {
+  const isActive = (route) => {
     return path === route || (route === '/members' && path.startsWith('/members')) || (route === '/users' && path.startsWith('/users'));
   };
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: Icons.Dashboard },
+    { name: 'Earnings', path: '/earnings', icon: Icons.Earnings },
     { name: 'Members', path: '/members', icon: Icons.Members },
     { name: 'Users', path: '/users', icon: Icons.SystemUsers },
-    { name: 'Earnings', path: '/earnings', icon: Icons.Earnings },
   ];
 
   return (
@@ -30,11 +30,11 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-10 h-10 bg-panda-card rounded-full flex items-center justify-center border border-panda-border shadow-neon">
-              <Icons.Brand className="text-panda-red w-6 h-6" />
+              <img src="/img/logo.png" alt="logo" className="text-panda-red w-8 h-8" />
             </div>
           </div>
           <div>
-            <h1 className="text-white font-bold text-lg tracking-wide">IRON<span className="text-panda-red">PANDA</span></h1>
+            <h1 className="text-white font-bold text-lg tracking-wide">ROKHO<span className="text-panda-red">GYM</span></h1>
             <p className="text-xs text-gray-500">Manager Pro</p>
           </div>
         </div>

@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Icons } from './Icons';
-import { Member, MemberStatus, PaymentType } from '../types';
+import { MemberStatus, PaymentType } from '../types';
 
-interface MemberModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  mode: 'add' | 'edit';
-  memberData?: Member;
-}
-
-export const MemberModal: React.FC<MemberModalProps> = ({ isOpen, onClose, mode, memberData }) => {
+export const MemberModal = ({ isOpen, onClose, mode, memberData }) => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -85,7 +78,7 @@ IronPanda Gym Management
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (mode === 'add') {
       // TODO: submit new member to database including payment info
@@ -168,7 +161,7 @@ IronPanda Gym Management
                 <select
                   className="w-full bg-black border border-panda-border rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-panda-red appearance-none transition-all"
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as MemberStatus })}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 >
                   <option value={MemberStatus.ACTIVE}>Active</option>
                   <option value={MemberStatus.FROZEN}>Frozen</option>
@@ -214,7 +207,7 @@ IronPanda Gym Management
                   <select
                     className="w-full bg-black border border-panda-border rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-panda-red appearance-none transition-all"
                     value={formData.paymentType}
-                    onChange={(e) => setFormData({ ...formData, paymentType: e.target.value as PaymentType })}
+                    onChange={(e) => setFormData({ ...formData, paymentType: e.target.value })}
                   >
                     <option value={PaymentType.SUBSCRIPTION}>Subscription</option>
                     <option value={PaymentType.RENEWAL}>Renewal</option>
@@ -248,16 +241,7 @@ IronPanda Gym Management
   );
 };
 
-interface DeleteConfirmationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  memberName: string;
-  isDeleting?: boolean;
-  type?: 'Member' | 'User';
-}
-
-export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({ 
+export const DeleteConfirmationModal = ({ 
   isOpen, 
   onClose, 
   onConfirm, 

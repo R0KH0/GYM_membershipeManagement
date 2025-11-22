@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { TopBar } from '../components/TopBar';
 import { Icons } from '../components/Icons';
-import { User, UserRole } from '../types';
+import { UserRole } from '../types';
 import { UserModal } from '../components/UserModal';
 import { DeleteConfirmationModal } from '../components/MemberModals';
 
 // Mock Data
-const MOCK_USERS: User[] = [
+const MOCK_USERS = [
   { id: '1', name: 'Marwane Rohko', email: 'marwane@ironpanda.com', role: UserRole.ADMIN },
   { id: '2', name: 'Mike Tyson', email: 'mike@ironpanda.com', role: UserRole.TRAINER },
   { id: '3', name: 'Sarah Connor', email: 'sarah@ironpanda.com', role: UserRole.EMPLOYEE },
@@ -14,7 +14,7 @@ const MOCK_USERS: User[] = [
   { id: '5', name: 'Jane Smith', email: 'jane@ironpanda.com', role: UserRole.EMPLOYEE },
 ];
 
-const RolePill = ({ role }: { role: UserRole }) => {
+const RolePill = ({ role }) => {
   const styles = {
     [UserRole.ADMIN]: 'bg-panda-red/10 text-panda-red border-panda-red/20',
     [UserRole.TRAINER]: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
@@ -29,27 +29,27 @@ const RolePill = ({ role }: { role: UserRole }) => {
   );
 };
 
-export const Users: React.FC = () => {
-  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+export const Users = () => {
+  const [users, setUsers] = useState(MOCK_USERS);
   const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [roleFilter, setRoleFilter] = useState('all');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-  const [selectedUser, setSelectedUser] = useState<User | undefined>(undefined);
+  const [modalMode, setModalMode] = useState('add');
+  const [selectedUser, setSelectedUser] = useState(undefined);
 
   // Delete Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleEdit = (user: User) => {
+  const handleEdit = (user) => {
     setSelectedUser(user);
     setModalMode('edit');
     setIsModalOpen(true);
   };
 
-  const handleDeleteClick = (user: User) => {
+  const handleDeleteClick = (user) => {
     setUserToDelete(user);
     setIsDeleteModalOpen(true);
   };
@@ -73,9 +73,9 @@ export const Users: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSaveUser = (savedUser: Partial<User>) => {
+  const handleSaveUser = (savedUser) => {
     if (modalMode === 'add') {
-      const newUser: User = {
+      const newUser = {
         id: Math.random().toString(36).substr(2, 9),
         name: savedUser.name || '',
         email: savedUser.email || '',
@@ -83,7 +83,7 @@ export const Users: React.FC = () => {
       };
       setUsers([...users, newUser]);
     } else if (modalMode === 'edit' && selectedUser) {
-      setUsers(users.map(u => u.id === selectedUser.id ? { ...u, ...savedUser } as User : u));
+      setUsers(users.map(u => u.id === selectedUser.id ? { ...u, ...savedUser } : u));
     }
   };
 

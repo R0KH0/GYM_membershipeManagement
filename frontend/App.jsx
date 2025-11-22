@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { HashRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
-import { Members } from './pages/Members';
 import { Earnings } from './pages/Earnings';
+import { Members } from './pages/Members';
 import { Login } from './pages/Login';
 import { Users } from './pages/Users';
 import { MobileMenuContext } from './contexts/MobileMenuContext';
@@ -36,7 +36,7 @@ const AppLayout = () => {
   );
 };
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <HashRouter>
       <Routes>
@@ -45,9 +45,9 @@ const App: React.FC = () => {
         {/* Protected Routes */}
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/earnings" element={<Earnings />} />
           <Route path="/members" element={<Members />} />
           <Route path="/users" element={<Users />} />
-          <Route path="/earnings" element={<Earnings />} />
         </Route>
 
         {/* Catch all redirect */}
