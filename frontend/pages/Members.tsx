@@ -2,15 +2,21 @@ import React, { useState } from 'react';
 import { TopBar } from '../components/TopBar';
 import { Icons } from '../components/Icons';
 import { Member, MemberStatus } from '../types';
-import { MemberModal } from '../components/MemberModals';
+import { MemberModal, DeleteConfirmationModal } from '../components/MemberModals';
 
 // Mock Data
 const MOCK_MEMBERS: Member[] = [
-  { id: '1', name: 'Sarah Connor', phone: '+1 (555) 000-1111', joinDate: '2023-10-12', createdBy: 'Admin', status: MemberStatus.ACTIVE },
-  { id: '2', name: 'John Wick', phone: '+1 (555) 999-2222', joinDate: '2023-09-05', createdBy: 'Trainer Mike', status: MemberStatus.FROZEN },
-  { id: '3', name: 'Bruce Wayne', phone: '+1 (555) 123-4567', joinDate: '2023-11-01', createdBy: 'Admin', status: MemberStatus.PENDING },
-  { id: '4', name: 'Clark Kent', phone: '+1 (555) 321-7654', joinDate: '2023-01-15', createdBy: 'Admin', status: MemberStatus.ACTIVE },
-  { id: '5', name: 'Peter Parker', phone: '+1 (555) 888-7777', joinDate: '2023-08-20', createdBy: 'Trainer Mike', status: MemberStatus.CANCELLED },
+  { id: '1', name: 'Sarah Connor', phone: '+1 (555) 000-1111', joinDate: '2023-10-12', createdBy: 'Marwane Rohko (Admin)', status: MemberStatus.ACTIVE },
+  { id: '2', name: 'John Wick', phone: '+1 (555) 999-2222', joinDate: '2023-09-05', createdBy: 'Mike Tyson (Trainer)', status: MemberStatus.FROZEN },
+  { id: '3', name: 'Bruce Wayne', phone: '+1 (555) 123-4567', joinDate: '2023-11-01', createdBy: 'Marwane Rohko (Admin)', status: MemberStatus.PENDING },
+  { id: '4', name: 'Clark Kent', phone: '+1 (555) 321-7654', joinDate: '2023-01-15', createdBy: 'Sarah Connor (Employee)', status: MemberStatus.ACTIVE },
+  { id: '5', name: 'Peter Parker', phone: '+1 (555) 888-7777', joinDate: '2023-08-20', createdBy: 'Mike Tyson (Trainer)', status: MemberStatus.CANCELLED },
+];
+
+const AVAILABLE_CREATORS = [
+  "Marwane Rohko (Admin)",
+  "Mike Tyson (Trainer)",
+  "Sarah Connor (Employee)"
 ];
 
 const StatusPill = ({ status }: { status: MemberStatus }) => {
@@ -29,6 +35,7 @@ const StatusPill = ({ status }: { status: MemberStatus }) => {
 };
 
 export const Members: React.FC = () => {
+  const [members, setMembers] = useState<Member[]>(MOCK_MEMBERS);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState('');
@@ -38,13 +45,33 @@ export const Members: React.FC = () => {
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
 
-  // TODO: fetch member list from database
-  // useEffect(() => { fetch('/api/members')... }, [])
+  // Delete Modal State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleEdit = (member: Member) => {
     setSelectedMember(member);
     setModalMode('edit');
     setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (member: Member) => {
+    setMemberToDelete(member);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (memberToDelete) {
+      setIsDeleting(true);
+      // Simulate API delay for "action appending" effect
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setMembers(prev => prev.filter(m => m.id !== memberToDelete.id));
+      setMemberToDelete(null);
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+    }
   };
 
   const handleAdd = () => {
@@ -89,11 +116,11 @@ export const Members: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  const filteredMembers = MOCK_MEMBERS.filter(m => {
+  const filteredMembers = members.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) || m.phone.includes(searchTerm);
     const matchesStatus = statusFilter === 'all' || m.status === statusFilter;
     const matchesDate = dateFilter === '' || m.joinDate === dateFilter;
-    const matchesCreator = creatorFilter === '' || m.createdBy.toLowerCase().includes(creatorFilter.toLowerCase());
+    const matchesCreator = creatorFilter === '' || m.createdBy === creatorFilter;
 
     return matchesSearch && matchesStatus && matchesDate && matchesCreator;
   });
@@ -112,15 +139,14 @@ export const Members: React.FC = () => {
       <main className="p-4 md:p-8 space-y-6 md:space-y-8">
         
         {/* Top Cards */}
-        {/* TODO: fetch from /api/members/stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
            <div className="bg-[#111] border border-panda-border p-6 rounded-2xl">
              <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Total Members</p>
-             <p className="text-3xl font-bold text-white">1,240</p>
+             <p className="text-3xl font-bold text-white">{members.length.toLocaleString()}</p>
            </div>
            <div className="bg-[#111] border border-panda-border p-6 rounded-2xl">
              <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Total Active</p>
-             <p className="text-3xl font-bold text-panda-red">892</p>
+             <p className="text-3xl font-bold text-panda-red">{members.filter(m => m.status === MemberStatus.ACTIVE).length.toLocaleString()}</p>
            </div>
            <div className="bg-[#111] border border-panda-border p-6 rounded-2xl">
              <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">New This Month</p>
@@ -172,14 +198,17 @@ export const Members: React.FC = () => {
               <div className="space-y-1">
                 <label className="text-xs text-gray-500 font-medium ml-1 uppercase tracking-wider">Created By</label>
                 <div className="relative">
-                  <Icons.User className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
-                  <input 
-                    type="text" 
-                    placeholder="Admin, Trainer..." 
-                    className="w-full bg-[#111] border border-panda-border rounded-xl pl-10 pr-4 py-2.5 text-white focus:border-panda-red focus:ring-1 focus:ring-panda-red focus:outline-none transition-all placeholder-gray-600"
+                  <select 
+                    className="w-full bg-[#111] border border-panda-border rounded-xl px-4 py-2.5 text-white focus:border-panda-red focus:ring-1 focus:ring-panda-red focus:outline-none transition-all appearance-none"
                     value={creatorFilter}
                     onChange={(e) => setCreatorFilter(e.target.value)}
-                  />
+                  >
+                    <option value="">All Creators</option>
+                    {AVAILABLE_CREATORS.map(creator => (
+                      <option key={creator} value={creator}>{creator}</option>
+                    ))}
+                  </select>
+                  <Icons.Down className="absolute right-4 top-3.5 w-4 h-4 text-gray-500 pointer-events-none" />
                 </div>
               </div>
 
@@ -242,7 +271,7 @@ export const Members: React.FC = () => {
             <table className="w-full text-left whitespace-nowrap">
               <thead>
                 <tr className="border-b border-panda-border bg-white/5">
-                  <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider w-16 text-center">Edit</th>
+                  <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider w-24 text-center">Actions</th>
                   <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
                   <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Phone</th>
                   <th className="p-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Join Date</th>
@@ -254,12 +283,22 @@ export const Members: React.FC = () => {
                 {filteredMembers.map((member) => (
                   <tr key={member.id} className="group hover:bg-white/5 transition-colors">
                     <td className="p-4 text-center">
-                      <button 
-                        onClick={() => handleEdit(member)}
-                        className="text-gray-500 hover:text-white hover:bg-gray-800 p-2 rounded-full transition-all"
-                      >
-                        <Icons.Edit className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-center gap-2">
+                        <button 
+                          onClick={() => handleEdit(member)}
+                          className="text-gray-500 hover:text-white hover:bg-gray-800 p-2 rounded-full transition-all"
+                          title="Edit Member"
+                        >
+                          <Icons.Edit className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteClick(member)}
+                          className="text-gray-500 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-full transition-all"
+                          title="Delete Member"
+                        >
+                          <Icons.Trash className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-3">
@@ -295,6 +334,14 @@ export const Members: React.FC = () => {
         onClose={() => setIsModalOpen(false)} 
         mode={modalMode}
         memberData={selectedMember}
+      />
+
+      <DeleteConfirmationModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        memberName={memberToDelete?.name || ''}
+        isDeleting={isDeleting}
       />
     </div>
   );

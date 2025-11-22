@@ -9,12 +9,13 @@ export const Sidebar: React.FC = () => {
   const { isOpen, close } = useMobileMenu();
 
   const isActive = (route: string) => {
-    return path === route || (route === '/members' && path.startsWith('/members'));
+    return path === route || (route === '/members' && path.startsWith('/members')) || (route === '/users' && path.startsWith('/users'));
   };
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: Icons.Dashboard },
     { name: 'Members', path: '/members', icon: Icons.Members },
+    { name: 'Users', path: '/users', icon: Icons.SystemUsers },
     { name: 'Earnings', path: '/earnings', icon: Icons.Earnings },
   ];
 

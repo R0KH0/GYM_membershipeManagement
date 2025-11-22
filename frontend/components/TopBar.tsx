@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icons } from './Icons';
-import { CreateUserModal } from './CreateUserModal';
+import { UserModal } from './UserModal';
 import { useMobileMenu } from '../contexts/MobileMenuContext';
 
 interface TopBarProps {
@@ -143,7 +143,7 @@ export const TopBar: React.FC<TopBarProps> = ({ title }) => {
         </div>
       </header>
 
-      <CreateUserModal isOpen={isCreateUserOpen} onClose={() => setIsCreateUserOpen(false)} />
+      <UserModal isOpen={isCreateUserOpen} onClose={() => setIsCreateUserOpen(false)} mode="add" />
     </>
   );
 };

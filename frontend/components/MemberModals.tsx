@@ -44,7 +44,7 @@ export const MemberModal: React.FC<MemberModalProps> = ({ isOpen, onClose, mode,
         phone: '',
         joinDate: today.toISOString().split('T')[0],
         endDate: nextMonth.toISOString().split('T')[0],
-        createdBy: 'Admin',
+        createdBy: 'Marwane Rohko (Admin)',
         status: MemberStatus.ACTIVE,
         paymentAmount: 0,
         paymentType: PaymentType.SUBSCRIPTION
@@ -103,8 +103,8 @@ IronPanda Gym Management
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm overflow-y-auto p-4">
-      <div className="w-full max-w-lg bg-[#151515] border border-panda-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm overflow-y-auto p-4 animate-in fade-in duration-200">
+      <div className="w-full max-w-lg bg-[#151515] border border-panda-border rounded-2xl shadow-2xl overflow-hidden my-auto transform transition-all">
         <div className="px-6 py-4 border-b border-panda-border flex justify-between items-center bg-[#111]">
           <h3 className="text-white font-semibold text-lg flex items-center gap-2">
             {mode === 'add' ? <Icons.Plus className="w-5 h-5 text-panda-red" /> : <Icons.Edit className="w-5 h-5 text-panda-red" />}
@@ -243,6 +243,67 @@ IronPanda Gym Management
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+};
+
+interface DeleteConfirmationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  memberName: string;
+  isDeleting?: boolean;
+  type?: 'Member' | 'User';
+}
+
+export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  memberName,
+  isDeleting = false,
+  type = 'Member'
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="w-full max-w-md bg-[#151515] border border-panda-border rounded-2xl shadow-2xl overflow-hidden transform transition-all scale-100">
+        <div className="p-6 text-center">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-5 border border-red-500/20 shadow-[0_0_15px_rgba(230,0,0,0.2)]">
+            <Icons.Trash className="w-8 h-8 text-panda-red" />
+          </div>
+          <h3 className="text-white font-bold text-xl mb-2">Delete {type}?</h3>
+          <p className="text-gray-400 mb-8 text-sm leading-relaxed">
+            Are you sure you want to remove <span className="text-white font-semibold">{memberName}</span> from the system?
+            <br />This action cannot be undone.
+          </p>
+          
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              disabled={isDeleting}
+              className="flex-1 px-4 py-3 rounded-xl border border-panda-border text-gray-300 hover:bg-white/5 hover:text-white transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={isDeleting}
+              className="flex-1 px-4 py-3 rounded-xl bg-panda-red text-white hover:bg-red-600 shadow-neon transition-all font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isDeleting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                `Delete ${type}`
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

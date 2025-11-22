@@ -19,7 +19,9 @@ import {
   Mail,
   User,
   Download,
-  Menu
+  Menu,
+  Trash2,
+  UserCog
 } from 'lucide-react';
 
 export const Icons = {
@@ -42,5 +44,7 @@ export const Icons = {
   Mail: Mail,
   User: User,
   Download: Download,
-  Menu: Menu
+  Menu: Menu,
+  Trash: Trash2,
+  SystemUsers: UserCog
 };

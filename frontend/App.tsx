@@ -5,6 +5,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Members } from './pages/Members';
 import { Earnings } from './pages/Earnings';
 import { Login } from './pages/Login';
+import { Users } from './pages/Users';
 import { MobileMenuContext } from './contexts/MobileMenuContext';
 
 // Layout component to wrap protected routes with Sidebar
@@ -45,6 +46,7 @@ const App: React.FC = () => {
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/members" element={<Members />} />
+          <Route path="/users" element={<Users />} />
           <Route path="/earnings" element={<Earnings />} />
         </Route>
 
