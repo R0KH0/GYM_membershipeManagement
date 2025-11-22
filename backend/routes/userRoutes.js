@@ -15,7 +15,7 @@ router.post("/create", authorizeRoles("admin", "super-admin"), createUser); // c
 router.get("/all", getAllUsers); //get users route
 router.get("/search", getUserByName); //get user by name route
 router.put("/update", updateUserByName); //update user by name route
-router.delete("/delete", authorizeRoles("admin", "super-admin"), deleteUserByName);
+router.delete("/delete", authorizeRoles("admin", "super-admin"), deleteUserByName);//delete user by name route
 // Protected route for all logged-in users
 router.get(
   "/profile",

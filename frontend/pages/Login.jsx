@@ -1,24 +1,36 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icons } from '../components/Icons';
+import { api } from '../src/api/axios';
 
 export const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    // TODO: POST /api/auth/login
-    // Simulating API call
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/dashboard');
-    }, 1000);
-  };
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+
+  try {
+    const res = await api.post("api/users/login", {
+      email,
+      password,
+    });
+
+    // If login successful, backend sets HttpOnly cookie automatically
+    navigate("/dashboard");
+
+  } catch (err) {
+    console.error(err);
+    const errorMessage = err.response?.data?.message;
+    setError(errorMessage);
+  }
+
+  setIsLoading(false);
+};
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
@@ -35,6 +47,12 @@ export const Login = () => {
           <h1 className="text-2xl font-bold text-white tracking-tight">Welcome Back</h1>
           <p className="text-gray-500 text-sm mt-2">Enter your credentials</p>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1">
@@ -67,9 +85,6 @@ export const Login = () => {
             </div>
           </div>
 
-          <div className="flex justify-end">
-          </div>
-
           <button
             type="submit"
             disabled={isLoading}
@@ -87,4 +102,4 @@ export const Login = () => {
       </div>
     </div>
   );
-};
+};  
