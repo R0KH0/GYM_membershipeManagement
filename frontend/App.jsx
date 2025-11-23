@@ -7,6 +7,7 @@ import { Members } from './pages/Members';
 import { Login } from './pages/Login';
 import { Users } from './pages/Users';
 import { MobileMenuContext } from './contexts/MobileMenuContext';
+import AuthGuard from "./src/auth/protectedRoute";
 
 // Layout component to wrap protected routes with Sidebar
 const AppLayout = () => {
@@ -40,15 +41,16 @@ const App = () => {
   return (
     <HashRouter>
       <Routes>
+        {/* Pucblic rtoute */}
         <Route path="/" element={<Login />} />
         
         {/* Protected Routes */}
         <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/earnings" element={<Earnings />} />
-          <Route path="/members" element={<Members />} />
-          <Route path="/users" element={<Users />} />
-        </Route>
+          <Route path="/dashboard" element= <AuthGuard> {<Dashboard />} </AuthGuard> />
+          <Route path="/earnings" element= <AuthGuard> {<Earnings />} </AuthGuard> />
+          <Route path="/members" element= <AuthGuard> {<Members />}</AuthGuard> />
+          <Route path="/users" element= <AuthGuard> {<Users />} </AuthGuard> />
+          </Route>
 
         {/* Catch all redirect */}
         <Route path="*" element={<Navigate to="/" replace />} />

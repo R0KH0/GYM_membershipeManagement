@@ -16,12 +16,15 @@ router.get("/all", getAllUsers); //get users route
 router.get("/search", getUserByName); //get user by name route
 router.put("/update", updateUserByName); //update user by name route
 router.delete("/delete", authorizeRoles("admin", "super-admin"), deleteUserByName);//delete user by name route
-// Protected route for all logged-in users
-router.get(
-  "/profile",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    res.json({ message: "Profile data", user: req.user });
+
+//get user data by gwt
+router.get ("/me", 
+  passport.authenticate("jwt", { session: false }), 
+  (req , res) => { 
+    res.json({
+      name: req.user.name,
+      email: req.user.email,
+    });
   }
 );
 

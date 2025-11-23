@@ -15,8 +15,17 @@ export const TopBar = ({ title }) => {
   
   const navigate = useNavigate();
   const { toggle } = useMobileMenu();
-
+  const [user, setUser] = useState(null);
   useEffect(() => {
+    //profile info
+    const fetchUser = async () => {
+        try {
+          const res = await api.get ("api/users/me", { withCredentials: true,});
+          setUser(res.data);
+        }catch (err){
+          console.log ("user not  loged in");
+        }
+      };
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setIsProfileOpen(false);
@@ -25,6 +34,7 @@ export const TopBar = ({ title }) => {
         setIsNotificationsOpen(false);
       }
     };
+    fetchUser();
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -109,7 +119,7 @@ const handleLogout = async () => {
               className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-full border border-panda-border hover:bg-white/5 transition-all"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-panda-red to-orange-600 flex items-center justify-center text-white text-sm font-bold shadow-neon">
-                A
+                {user?.name?.[0]?.toUpperCase()}
               </div>
               <Icons.Down className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -117,8 +127,8 @@ const handleLogout = async () => {
             {isProfileOpen && (
               <div className="absolute right-0 mt-3 w-48 bg-[#151515] border border-panda-border rounded-xl shadow-2xl py-2 overflow-hidden animate-in fade-in zoom-in-95 duration-150 z-50">
                 <div className="px-4 py-2 border-b border-panda-border mb-1">
-                  <p className="text-sm text-white font-medium">Admin User</p>
-                  <p className="text-xs text-gray-500">admin@ironpanda.com</p>
+                  <p className="text-sm text-white font-medium">{user?.name}</p>
+                  <p className="text-xs text-gray-500">{user?.email}</p>
                 </div>
                 <button
                   onClick={() => {
