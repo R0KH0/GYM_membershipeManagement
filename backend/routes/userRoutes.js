@@ -1,6 +1,6 @@
 import express from "express";
 import { createUser, getAllUsers, getUserByName, updateUserByName, deleteUserByName} from "../controllers/userController.js"
-import loginUser from "../controllers/logingContoller.js";
+import loginUser from "../controllers/loginContoller.js";
 import { authorizeRoles } from "../middleware/authMiddleware.js";
 import passport from "passport";
 
@@ -8,8 +8,8 @@ import passport from "passport";
 const router = express.Router();
 
 
-// Creat user Route
-router.post("/login", loginUser); //loging route
+// Create user Route
+router.post("/login", loginUser); //login route
 router.use(passport.authenticate("jwt", { session: false }));// require a valid JWT
 router.post("/create", authorizeRoles("admin", "super-admin"), createUser); // create user route
 router.get("/all", getAllUsers); //get users route
@@ -24,6 +24,7 @@ router.get ("/me",
     res.json({
       name: req.user.name,
       email: req.user.email,
+      role: req.user.role,
     });
   }
 );

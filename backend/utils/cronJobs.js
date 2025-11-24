@@ -11,7 +11,7 @@ export const startCronJobs = () => {
             const res = await Member.updateMany({ endDate: { $lt: now }, status: { $in: ['active','pending','frozen'] } }, { status: 'expired' });
             console.log('Cron job: expired members updated', res.modifiedCount);
         } catch (err) {
-             console.error('Cron job error', err);
+            console.error('Cron job error', err);
         }
     });
 }
