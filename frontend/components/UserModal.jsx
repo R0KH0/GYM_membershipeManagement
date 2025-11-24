@@ -14,7 +14,7 @@ export const UserModal = ({ isOpen, onClose, mode, userData, onSave }) => {
     if (mode === 'edit' && userData) {
       setFormData({
         name: userData.name,
-        email: userData.email,
+        email: userData.email,  
         password: '', // Don't populate password on edit for security
         role: userData.role
       });

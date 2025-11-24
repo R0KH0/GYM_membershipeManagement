@@ -1,7 +1,7 @@
 export const UserRole = {
-  ADMIN: 'admin',
+  SUPER_ADMIN: 'super-admin',
   EMPLOYEE: 'employee',
-  TRAINER: 'trainer'
+  ADMIN: 'admin'
 };
 
 export const MemberStatus = {
