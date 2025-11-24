@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser, getAllUsers, getUserByName, updateUserByName, deleteUserByName} from "../controllers/userController.js"
+import { createUser, getAllUsers, getUserByName, updateUserById, deleteUserById} from "../controllers/userController.js"
 import loginUser from "../controllers/loginContoller.js";
 import { authorizeRoles } from "../middleware/authMiddleware.js";
 import passport from "passport";
@@ -14,8 +14,8 @@ router.use(passport.authenticate("jwt", { session: false }));// require a valid 
 router.post("/create", authorizeRoles("admin", "super-admin"), createUser); // create user route
 router.get("/all", getAllUsers); //get users route
 router.get("/search", getUserByName); //get user by name route
-router.put("/update", updateUserByName); //update user by name route
-router.delete("/delete", authorizeRoles("admin", "super-admin"), deleteUserByName);//delete user by name route
+router.put("/update/:id", updateUserById); //update user by name route
+router.delete("/delete/:id", authorizeRoles("admin", "super-admin"), deleteUserById);//delete user by name route
 
 //get user data by gwt
 router.get ("/me", 

@@ -42,7 +42,7 @@ export const Users = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await api.get("/api/users/all", { withCredentials: true });
+        const res = await api.get("api/users/all", { withCredentials: true });
 
         const formatted = res.data.map(u => ({
           id: u._id,
@@ -50,7 +50,6 @@ export const Users = () => {
           email: u.email,
           role: u.role
         }));
-
         setUsers(formatted);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -80,20 +79,27 @@ export const Users = () => {
   };
 
   const confirmDelete = async () => {
-    if (!userToDelete) return;
+  if (!userToDelete) return;
 
-    try {
-      setIsDeleting(true);
-      await api.delete(`/api/users/${userToDelete.id}`);
+  try {
+    setIsDeleting(true);
 
-      setUsers(prev => prev.filter(u => u.id !== userToDelete.id));
-    } catch (err) {
-      console.error("Delete error:", err);
-    } finally {
-      setIsDeleting(false);
-      setIsDeleteModalOpen(false);
-    }
-  };
+    // DELETE request to backend
+    await api.delete(`api/users/delete/${userToDelete.id}`);
+
+    // Remove from UI
+    setUsers(prev => prev.filter(u => u._id !== userToDelete.id));
+
+    // Close modal
+    setIsDeleteModalOpen(false);
+    setUserToDelete(null);
+
+  } catch (error) {
+    console.error("Error deleting user:", error);
+  } finally {
+    setIsDeleting(false);
+  }
+};
 
   // --------------------------------------
   // Add new user
@@ -110,7 +116,7 @@ export const Users = () => {
   const handleSaveUser = async (savedUser) => {
     try {
       if (modalMode === "add") {
-        const res = await api.post("/api/users/create", savedUser);
+        const res = await api.post("api/users/create", savedUser);
         const newUser = {
           id: res.data._id,
           name: res.data.name,
@@ -119,7 +125,7 @@ export const Users = () => {
         };
         setUsers(prev => [...prev, newUser]);
       } else {
-        const res = await api.put(`/api/users/${selectedUser.id}`, savedUser);
+        const res = await api.put(`api/users/update/${selectedUser.id}`, savedUser);
 
         const updated = users.map(u =>
           u.id === selectedUser.id
@@ -253,7 +259,7 @@ export const Users = () => {
               </thead>
               <tbody className="divide-y divide-panda-border">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="group hover:bg-white/5 transition-colors">
+                  <tr key={user._id} className="group hover:bg-white/5 transition-colors">
                     <td className="p-4 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button 

@@ -106,91 +106,138 @@ export const getUserByName = async (req, res) => {
   }
 };
 
-// Update user by name
-export const updateUserByName = async (req, res) => {
+// Update user 
+export const updateUserById = async (req, res) => {
   try {
-    const { name } = req.query; 
-    const { newName, email, password, role } = req.body;
+    const { id } = req.params;
+    const { name, email, password, role } = req.body;
 
-    // Find user by name
-    const user = await User.findOne({ name });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    // Find target user to update
+    const target = await User.findById(id);
+    if (!target) return res.status(404).json({ message: "User not found" });
 
-    // Role restrictions
-    if (req.user.role === "user") {
-      // User can only update their own profile
-      if (req.user.name !== name) {
-        return res.status(403).json({ message: "Access denied: cannot update another user" });
+    const requester = req.user; // logged-in user
+
+    /*ROLE PERMISSIONS LOGIC*/
+
+    // --- EMPLOYEE ROLE ---
+    if (requester.role === "employee") {
+      if (requester._id.toString() !== id) {
+        return res.status(403).json({ message: "Employees can update only themselves" });
       }
 
-      // Allow only password change
-      if (password) {
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
-      } else {
+      if (!password) {
         return res.status(400).json({ message: "Only password update is allowed" });
       }
+
+      const salt = await bcrypt.genSalt(10);
+      target.password = await bcrypt.hash(password, salt);
     }
 
-    // Admin can update normal users only (not super-admins or other admins)
-    if (req.user.role === "admin") {
-      if (user.role === "admin" || user.role === "super-admin") {
-        return res.status(403).json({ message: "Access denied: cannot update admin or super-admin" });
+    // --- ADMIN ROLE ---
+    else if (requester.role === "admin") {
+      // Admin CANNOT update super-admin
+      if (target.role === "super-admin") {
+        return res.status(403).json({ message: "Admins cannot update super-admins" });
       }
-    }
 
-    // Super-admin can update anyone
-    if (req.user.role === "super-admin" || req.user.role === "admin") {
-      if (newName) user.name = newName;
-      if (email) user.email = email;
+      // Admin cannot change role
+      if (role) {
+        return res.status(403).json({ message: "Admins cannot change roles" });
+      }
+
+      // Admin can update name/email/password
+      if (name) target.name = name;
+      if (email) target.email = email;
+
       if (password) {
         const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
+        target.password = await bcrypt.hash(password, salt);
       }
-      if (role && req.user.role === "super-admin") user.role = role; // only super-admin can change role
     }
 
-    const updatedUser = await user.save();
+    // --- SUPER ADMIN ROLE ---
+    else if (requester.role === "super-admin") {
+      // Super-admin can update everything
+      if (name) target.name = name;
+      if (email) target.email = email;
+
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        target.password = await bcrypt.hash(password, salt);
+      }
+
+      if (role) target.role = role;
+    }
+
+    // Save updated user
+    await target.save();
+
     res.json({
       message: "User updated successfully",
-      user: {
-        _id: updatedUser._id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        role: updatedUser.role,
-      },
+      updatedUser: {
+        id: target._id,
+        name: target.name,
+        email: target.email,
+        role: target.role,
+      }
     });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
 
 // Delete user by name
-export const deleteUserByName = async (req, res) => {
+export const deleteUserById = async (req, res) => {
   try {
-    const { name } = req.query;
-    const actor = req.user;
+    const { id } = req.params;
+    const actor = req.user; 
 
-    const targetUser = await User.findOne({ name });
+    const targetUser = await User.findById(id);
     if (!targetUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Normal users cannot delete anyone
-    if (actor.role === "user") {
-      return res.status(403).json({ message: "Access denied: users cannot delete any account" });
+    // EMPLOYEE → cannot delete anyone
+    if (actor.role === "employee") {
+      return res.status(403).json({
+        message: "Access denied: employees cannot delete accounts",
+      });
     }
 
+    // ADMIN rules
+    if (actor.role === "admin") {
+      // admin CANNOT delete super-admin
+      if (targetUser.role === "super-admin") {
+        return res.status(403).json({
+          message: "Access denied: admins cannot delete super-admin accounts",
+        });
+      }
 
-    // Admin can only delete normal users
-    if (actor.role === "admin" && targetUser.role !== "user") {
-      return res.status(403).json({ message: "Access denied: admin can delete only normal users" });
+      // admin CAN delete admin & employee → allowed
     }
 
-    // Super-admin can delete anyone
+    // SUPER-ADMIN rules
+    if (actor.role === "super-admin") {
+      // super-admin cannot delete themselves
+      if (actor._id.toString() === id) {
+        return res.status(403).json({
+          message: "Super-admin cannot delete their own account",
+        });
+      }
+      // super-admin can delete anyone else
+    }
+
+    // Perform delete
     await User.findByIdAndDelete(targetUser._id);
-    res.json({ message: `${targetUser.name} has been deleted successfully` });
+
+    res.json({
+      message: `${targetUser.name} has been deleted successfully`,
+    });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
