@@ -10,7 +10,7 @@ router.use(passport.authenticate("jwt", { session: false }));
 router.post("/create", createMember);//create member route
 router.get("/all", getAllMembers);//get all members route
 router.get("/search", getMemberByName);//get member by name route
-router.put("/:id", updateMemberById);//update member by id route
-router.delete("/:id", authorizeRoles("admin", "super-admin"), deleteMemberById);//delete member by id route
+router.put("/update/:id", updateMemberById);//update member by id route
+router.delete("/delete/:id", authorizeRoles("admin", "super-admin"), deleteMemberById);//delete member by id route
 
 export default router;

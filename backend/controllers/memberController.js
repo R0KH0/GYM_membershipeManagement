@@ -37,10 +37,11 @@ export const createMember = async (req, res) => {
 // Get all members
 export const getAllMembers = async (req, res) => {
   try {
-    const members = await Member.find().populate("createdBy", "name email");
+    const members = await Member.find(); // return all members
     res.status(200).json(members);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error("Error fetching members:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
