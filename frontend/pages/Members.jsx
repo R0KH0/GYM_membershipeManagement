@@ -43,7 +43,7 @@ export const Members = () => {
 
   // Get unique creators from members
   const AVAILABLE_CREATORS = useMemo(
-    () => [...new Set(members.map(m => m.createdBy?.username || m.createdBy?.email || "Unknown").filter(Boolean))],
+    () => [...new Set(members.map(m => m.createdByName).filter(Boolean))],
     [members]
   );
 
@@ -60,8 +60,8 @@ export const Members = () => {
         fullName: `${m.firstName || ""} ${m.lastName || ""}`.trim(),
         joinDate: m.startDate?.split("T")[0] || "",
         endDate: m.endDate?.split("T")[0] || "",
-        createdByName: m.createdBy?.username || m.createdBy?.email || "Unknown"
-      }));
+        createdByName: m.createdBy?.name || m.createdBy?.email || "Unknown"
+    }));
 
       setMembers(formatted);
     } catch (error) {

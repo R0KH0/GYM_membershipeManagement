@@ -3,47 +3,45 @@ import Member from "../models/memberModel.js";
 
 // Create payment
 export const createPayment = async (req, res) => {
+  const { member, amount, method, status, periodMonths, notes } = req.body;
+
   try {
-    const { memberId, amount, method, periodMonths, notes } = req.body;
-
-    const member = await Member.findById(memberId);
-    if (!member) return res.status(404).json({ message: "Member not found" });
-
-    // --- Membership logic ---
-    const now = new Date();
-
-    // If new member → membership starts now
-    if (!member.startDate || !member.endDate || member.endDate < now) {
-      member.startDate = now;
-      member.endDate = new Date(now.setMonth(now.getMonth() + periodMonths));
-    } else {
-      // If active → extend endDate
-      member.endDate = new Date(member.endDate.setMonth(member.endDate.getMonth() + periodMonths));
+    console.log('Creating payment for member ID:', member);
+    
+    // ✅ Validate member exists
+    const memberExists = await Member.findById(member);
+    if (!memberExists) {
+      console.error('Member not found:', member);
+      return res.status(404).json({ message: "Member not found" });
     }
 
-    member.status = "active";
-    member.paymentStatus = "paid";
-    await member.save();
+    console.log('Member found:', memberExists.firstName, memberExists.lastName);
 
-    // Create payment record
-    const payment = new Payment({
-      member: memberId,
-      amount,
-      method,
-      periodMonths,
-      notes
+    const newPayment = new Payment({
+      member,
+      amount: Number(amount),
+      method: method || 'cash',
+      status: status || 'paid',
+      periodMonths: Number(periodMonths) || 1,
+      notes: notes || '',
+      date: new Date()
     });
 
-    await payment.save();
+    await newPayment.save();
+    console.log('Payment created successfully:', newPayment._id);
+    
+    // Update member's payment status
+    memberExists.paymentStatus = 'paid';
+    await memberExists.save();
 
-    res.status(201).json({
-      message: "Payment added successfully",
-      payment,
-      member
-    });
-
+    return res.status(201).json(newPayment);
+    
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error('Payment creation error:', error);
+    return res.status(500).json({ 
+      message: "Failed to create payment", 
+      error: error.message 
+    });
   }
 };
 

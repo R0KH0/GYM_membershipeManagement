@@ -2,7 +2,7 @@ import Member from "../models/memberModel.js";
 
 // Create member
 export const createMember = async (req, res) => {
-  const { firstName, lastName, email, phone, startDate, endDate, notes } = req.body;
+  const { firstName, lastName, email, phone, startDate, endDate, notes, status  } = req.body;
 
   try {
     // check if existing member by name + phone
@@ -19,11 +19,12 @@ export const createMember = async (req, res) => {
       startDate,
       endDate,
       notes,
-      status: "pending",
-      createdBy: req.user?._id, // requires auth middleware
+      status: status || "pending",
+      createdBy: req.user._id, // requires auth middleware
     });
 
     await newMember.save();
+    await newMember.populate('createdBy', 'name email');
 
     return res.status(201).json({
       message: "Member created successfully",
@@ -37,27 +38,14 @@ export const createMember = async (req, res) => {
 // Get all members
 export const getAllMembers = async (req, res) => {
   try {
-    const members = await Member.find(); // return all members
+    const members = await Member.find()
+      .populate('createdBy', 'name email') // Only select name and email fields
+      .sort({ createdAt: -1 }); // Sort by newest first
+
     res.status(200).json(members);
   } catch (error) {
     console.error("Error fetching members:", error);
     res.status(500).json({ message: "Server error" });
-  }
-};
-
-// Get member by name (still allowed)
-export const getMemberByName = async (req, res) => {
-  const { name } = req.query;
-
-  try {
-    const member = await Member.findOne({ firstName: name });
-    if (!member) {
-      return res.status(404).json({ message: "Member not found" });
-    }
-
-    res.status(200).json(member);
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
   }
 };
 
@@ -71,7 +59,7 @@ export const updateMemberById = async (req, res) => {
       id,
       { firstName, lastName, email, phone, status, startDate, endDate, notes },
       { new: true }
-    );
+    ).populate('createdBy', 'name email');
 
     if (!updated) {
       return res.status(404).json({ message: "Member not found" });

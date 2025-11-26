@@ -94,14 +94,14 @@ export const MemberModal = ({ isOpen, onClose, mode, memberData, refresh }) => {
       
       const receiptContent = `
 ================================================
-           IRONPANDA GYM - RECEIPT
+           ROKHO's GYM - RECEIPT
 ================================================
 Date:         ${new Date().toLocaleString()}
 Member Name:  ${memberName}
 Phone:        ${formData.phone || 'N/A'}
 ================================================
 Payment Method: ${payment.method.toUpperCase()}
-Amount Paid:    $${Number(payment.amount).toFixed(2)}
+Amount Paid:    ${Number(payment.amount).toFixed(2)} DH
 Period:         ${payment.periodMonths} Month(s)
 Status:         PAID
 ================================================
@@ -110,7 +110,7 @@ Valid Until:    ${formData.endDate}
 ================================================
 ${payment.notes ? `Notes: ${payment.notes}\n================================================\n` : ''}
 Thank you for training with us!
-IronPanda Gym Management
+ROKHO's Gym
 ================================================
       `;
 
@@ -153,10 +153,10 @@ IronPanda Gym Management
         console.log('Creating new member with data:', formData);
         
         // Create new member
-        const memberResponse = await api.post('/api/members/create', formData);
+        const memberResponse = await api.post('api/members/create', formData);
         console.log('Member created:', memberResponse.data);
         
-        const memberId = memberResponse.data._id;
+        const memberId = memberResponse.data.member._id;
         
         if (!memberId) {
           throw new Error('Member created but no ID returned from server');
@@ -177,9 +177,11 @@ IronPanda Gym Management
           
           console.log('Payment payload:', paymentPayload);
           
-          const paymentResponse = await api.post('/api/payments/create', paymentPayload);
+          const paymentResponse = await api.post('api/payments/create', paymentPayload);
           console.log('Payment created:', paymentResponse.data);
-          
+        }
+        
+        if (formData.status === MemberStatus.ACTIVE && createPayment && paymentData.amount > 0) {
           downloadReceipt(memberName, paymentData);
         }
 
@@ -192,7 +194,7 @@ IronPanda Gym Management
         }
         
         console.log('Update data:', formData);
-        const updateResponse = await api.put(`/api/members/update/${memberData._id}`, formData);
+        const updateResponse = await api.put(`api/members/update/${memberData._id}`, formData);
         console.log('Member updated:', updateResponse.data);
       }
 
@@ -371,10 +373,10 @@ IronPanda Gym Management
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   >
                     <option value={MemberStatus.ACTIVE}>Active</option>
-                    <option value={MemberStatus.FROZEN}>Frozen</option>
+                    {mode === 'edit' && <option value={MemberStatus.FROZEN}>Frozen</option>}
                     <option value={MemberStatus.PENDING}>Pending</option>
-                    <option value={MemberStatus.CANCELLED}>Cancelled</option>
-                    <option value="expired">Expired</option>
+                    {mode === 'edit' && <option value={MemberStatus.CANCELLED}>Cancelled</option>}
+                    {mode === 'edit' && <option value="expired">Expired</option>}
                   </select>
                 </div>
               </div>
@@ -416,13 +418,12 @@ IronPanda Gym Management
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Amount */}
                     <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Amount ($)</label>
+                      <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Amount (DH)</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-gray-500">$</span>
                         <input
                           type="number"
                           min="0"
-                          step="0.01"
+                          step="1"
                           className="w-full bg-black border border-panda-border rounded-lg pl-7 pr-4 py-2.5 text-white focus:border-panda-red focus:outline-none transition-colors"
                           value={paymentData.amount}
                           onChange={(e) => setPaymentData({ ...paymentData, amount: parseFloat(e.target.value) || 0 })}
