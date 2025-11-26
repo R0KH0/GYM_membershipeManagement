@@ -1,6 +1,13 @@
 import express from "express";
-import { createPayment, getPaymentsByMember, deletePayment } from "../controllers/paymentController.js";
 import passport from "passport";
+import {
+  createPayment,
+  getAllPayments,
+  getEarningsStats,
+  getMonthlyEarnings,
+  getPaymentsByMember,
+  deletePayment
+} from "../controllers/paymentController.js";
 
 const router = express.Router();
 
@@ -8,7 +15,13 @@ const router = express.Router();
 router.use(passport.authenticate("jwt", { session: false }));
 
 router.post("/create", createPayment);
-router.get("/:memberId", getPaymentsByMember);
-router.delete("/delete/:id", deletePayment);
+router.get("/all", getAllPayments);
+router.get("/member/:memberId", getPaymentsByMember);
+router.delete("/delete/:paymentId", deletePayment);
+
+// Earnings/Statistics routes
+router.get("/earnings/stats", getEarningsStats);
+router.get("/earnings/monthly", getMonthlyEarnings);
+
 
 export default router;
