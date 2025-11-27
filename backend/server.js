@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import memberRoutes from "./routes/memberRoute.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import notificationRoutes from "./routes/paymentRoutes.js";
 import cookieParser from "cookie-parser";
 import passportConfig from "./config/passport.js";
 import passport from "passport";
@@ -38,6 +39,7 @@ passportConfig(passport);
 app.use("/api/users", userRoutes);
 app.use("/api/members", memberRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 

@@ -1,4 +1,5 @@
 import Member from "../models/memberModel.js";
+import { createNotification } from "./notificationController.js";
 
 // Create member
 export const createMember = async (req, res) => {
@@ -25,6 +26,15 @@ export const createMember = async (req, res) => {
 
     await newMember.save();
     await newMember.populate('createdBy', 'name email');
+
+    // CREATE NOTIFICATION FOR OTHER USERS
+    const memberName = `${firstName} ${lastName}`.trim();
+    await createNotification(
+      'member_added',
+      `${memberName} was added by ${req.user.name}`,
+      newMember._id,
+      req.user._id
+    );
 
     return res.status(201).json({
       message: "Member created successfully",

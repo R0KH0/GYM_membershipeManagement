@@ -148,19 +148,19 @@ export const getEarningsStats = async (req, res) => {
   }
 };
 
-// Get monthly earnings data for charts
+// Get monthly earnings data for charts (SUPPORTS YEAR PARAMETER)
 export const getMonthlyEarnings = async (req, res) => {
   try {
-    const currentYear = new Date().getFullYear();
+    const year = req.query.year ? parseInt(req.query.year) : new Date().getFullYear();
     
-    // Get earnings grouped by month for the current year
+    // Get earnings grouped by month for the specified year
     const monthlyData = await Payment.aggregate([
       {
         $match: {
           status: "paid",
           date: {
-            $gte: new Date(currentYear, 0, 1),
-            $lte: new Date(currentYear, 11, 31, 23, 59, 59)
+            $gte: new Date(year, 0, 1),
+            $lte: new Date(year, 11, 31, 23, 59, 59)
           }
         }
       },
@@ -179,6 +179,7 @@ export const getMonthlyEarnings = async (req, res) => {
       const monthData = monthlyData.find(m => m._id === index + 1);
       return {
         name,
+        month: index + 1,
         value: monthData?.total || 0
       };
     });
@@ -187,6 +188,57 @@ export const getMonthlyEarnings = async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching monthly earnings:', error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Get DAILY earnings data for a specific month
+export const getDailyEarnings = async (req, res) => {
+  try {
+    const year = req.query.year ? parseInt(req.query.year) : new Date().getFullYear();
+    const month = req.query.month ? parseInt(req.query.month) - 1 : new Date().getMonth(); // month is 0-indexed
+    
+    // Get number of days in the month
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    // Get earnings grouped by day for the specified month
+    const dailyEarnings = await Payment.aggregate([
+      {
+        $match: {
+          status: "paid",
+          date: {
+            $gte: new Date(year, month, 1),
+            $lte: new Date(year, month, daysInMonth, 23, 59, 59)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: { $dayOfMonth: "$date" },
+          total: { $sum: "$amount" }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    
+    // Build chart data for each day of the month
+    const chartData = [];
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayData = dailyEarnings.find(d => d._id === day);
+      const total = dayData?.total || 0;
+      
+      chartData.push({
+        name: day.toString(),
+        day: day,
+        value: total
+      });
+    }
+    
+    res.status(200).json(chartData);
+    
+  } catch (error) {
+    console.error('Error fetching daily earnings:', error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
