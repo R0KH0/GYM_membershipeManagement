@@ -31,7 +31,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 const StatCard = ({ title, value, change, isPositive, isLoading }) => (
   <div className="bg-[#111] border border-panda-border p-6 rounded-2xl hover:border-white/10 transition-colors duration-300 relative overflow-hidden group">
     <div className="absolute top-0 right-0 w-32 h-32 bg-panda-red/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-panda-red/10 transition-all"></div>
-    <h3 className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">{title}</h3>
+      <h3 className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">{title}</h3>
     <div className="flex items-baseline gap-3">
       {isLoading ? (
         <div className="w-20 h-8 bg-gray-800 animate-pulse rounded"></div>

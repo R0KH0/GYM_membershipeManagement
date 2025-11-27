@@ -90,3 +90,164 @@ export const deleteMemberById = async (req, res) => {
     return res.status(500).json({ message: "Server error", error });
   }
 };
+
+
+// Get member statistics (for dashboard stat cards)
+export const getMemberStats = async (req, res) => {
+  try {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    const startOfMonth = new Date(currentYear, currentMonth, 1);
+    
+    // Total members
+    const totalMembers = await Member.countDocuments();
+    
+    // Active members
+    const activeMembers = await Member.countDocuments({ status: 'active' });
+    
+    // New members this month
+    const newMembersThisMonth = await Member.countDocuments({
+      createdAt: { $gte: startOfMonth }
+    });
+    
+    // Previous month for comparison
+    const prevMonthStart = new Date(currentYear, currentMonth - 1, 1);
+    const prevMonthEnd = new Date(currentYear, currentMonth, 0, 23, 59, 59);
+    const newMembersPrevMonth = await Member.countDocuments({
+      createdAt: { $gte: prevMonthStart, $lte: prevMonthEnd }
+    });
+    
+    // Calculate month-over-month change
+    const memberChange = newMembersPrevMonth > 0 
+      ? (((newMembersThisMonth - newMembersPrevMonth) / newMembersPrevMonth) * 100).toFixed(1)
+      : 0;
+    
+    res.status(200).json({
+      totalMembers,
+      activeMembers,
+      newMembersThisMonth,
+      memberChange: `${memberChange >= 0 ? '+' : ''}${memberChange}%`
+    });
+    
+  } catch (error) {
+    console.error('Error fetching member stats:', error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Get member growth data - MONTHLY view for entire year
+export const getMonthlyMemberGrowth = async (req, res) => {
+  try {
+    const year = req.query.year ? parseInt(req.query.year) : new Date().getFullYear();
+    
+    // Get new members grouped by month
+    const monthlyNewMembers = await Member.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(year, 0, 1),
+            $lte: new Date(year, 11, 31, 23, 59, 59)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          newMembers: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    
+    // Get total members at the end of each month
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const chartData = [];
+    
+    for (let i = 0; i < 12; i++) {
+      const monthIndex = i + 1;
+      const endOfMonth = new Date(year, i, 31, 23, 59, 59);
+      
+      // Count total members created up to this month
+      const totalMembers = await Member.countDocuments({
+        createdAt: { $lte: endOfMonth }
+      });
+      
+      // Get new members for this month
+      const monthData = monthlyNewMembers.find(m => m._id === monthIndex);
+      const newMembers = monthData?.newMembers || 0;
+      
+      chartData.push({
+        name: monthNames[i],
+        totalMembers,
+        newMembers
+      });
+    }
+    
+    res.status(200).json(chartData);
+    
+  } catch (error) {
+    console.error('Error fetching monthly member growth:', error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Get member growth data - DAILY view for specific month
+export const getDailyMemberGrowth = async (req, res) => {
+  try {
+    const year = req.query.year ? parseInt(req.query.year) : new Date().getFullYear();
+    const month = req.query.month ? parseInt(req.query.month) - 1 : new Date().getMonth(); // month is 0-indexed
+    
+    // Get number of days in the month
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    // Get new members grouped by day for the specified month
+    const dailyNewMembers = await Member.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(year, month, 1),
+            $lte: new Date(year, month, daysInMonth, 23, 59, 59)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: { $dayOfMonth: "$createdAt" },
+          newMembers: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    
+    // Build chart data for each day of the month
+    const chartData = [];
+    let cumulativeMembers = 0;
+    
+    // Get total members before this month
+    const beforeMonth = await Member.countDocuments({
+      createdAt: { $lt: new Date(year, month, 1) }
+    });
+    
+    cumulativeMembers = beforeMonth;
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayData = dailyNewMembers.find(d => d._id === day);
+      const newMembers = dayData?.newMembers || 0;
+      cumulativeMembers += newMembers;
+      
+      chartData.push({
+        name: `${day}`,
+        day: day,
+        totalMembers: cumulativeMembers,
+        newMembers
+      });
+    }
+    
+    res.status(200).json(chartData);
+    
+  } catch (error) {
+    console.error('Error fetching daily member growth:', error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
