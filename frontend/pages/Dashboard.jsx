@@ -72,18 +72,37 @@ export const Dashboard = () => {
   });
 
   // Chart data
-  const [monthlyEarnings, setMonthlyEarnings] = useState([]);
+  const [revenueGrowthData, setRevenueGrowthData] = useState([]);
+  const [monthlyEarningsData, setMonthlyEarningsData] = useState([]);
   const [memberGrowthData, setMemberGrowthData] = useState([]);
+  const [newMembersData, setNewMembersData] = useState([]);
 
-  // View toggles for Member Growth chart
+  // View toggles for Revenue Growth chart (LEFT CHART - Earnings)
+  const [revenueViewMode, setRevenueViewMode] = useState('monthly');
+  const [revenueYear, setRevenueYear] = useState(new Date().getFullYear());
+  const [revenueMonth, setRevenueMonth] = useState(new Date().getMonth() + 1);
+
+  // View toggles for Monthly Earnings chart (RIGHT CHART - Earnings)
+  const [earningsViewMode, setEarningsViewMode] = useState('monthly');
+  const [earningsYear, setEarningsYear] = useState(new Date().getFullYear());
+  const [earningsMonth, setEarningsMonth] = useState(new Date().getMonth() + 1);
+
+  // View toggles for Member Growth chart (LEFT CHART)
   const [memberViewMode, setMemberViewMode] = useState('monthly'); // 'monthly' or 'daily'
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // 1-12
 
+  // View toggles for New Members chart (RIGHT CHART)
+  const [newMembersViewMode, setNewMembersViewMode] = useState('monthly'); // 'monthly' or 'daily'
+  const [newMembersYear, setNewMembersYear] = useState(new Date().getFullYear());
+  const [newMembersMonth, setNewMembersMonth] = useState(new Date().getMonth() + 1); // 1-12
+
   // Loading states
   const [isLoadingStats, setIsLoadingStats] = useState(true);
-  const [isLoadingEarnings, setIsLoadingEarnings] = useState(true);
+  const [isLoadingRevenueChart, setIsLoadingRevenueChart] = useState(true);
+  const [isLoadingEarningsChart, setIsLoadingEarningsChart] = useState(true);
   const [isLoadingMemberChart, setIsLoadingMemberChart] = useState(true);
+  const [isLoadingNewMembersChart, setIsLoadingNewMembersChart] = useState(true);
 
   // Fetch member statistics
   useEffect(() => {
@@ -106,24 +125,66 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchEarningsStats = async () => {
       try {
-        setIsLoadingEarnings(true);
-        const [statsRes, monthlyRes] = await Promise.all([
-          api.get('api/payments/earnings/stats'),
-          api.get('api/payments/earnings/monthly')
-        ]);
-        setEarningsStats(statsRes.data);
-        setMonthlyEarnings(monthlyRes.data);
+        setIsLoadingStats(true);
+        const res = await api.get('api/payments/earnings/stats');
+        setEarningsStats(res.data);
       } catch (error) {
         console.error('Error fetching earnings:', error);
       } finally {
-        setIsLoadingEarnings(false);
+        setIsLoadingStats(false);
       }
     };
 
     fetchEarningsStats();
   }, []);
 
-  // Fetch member growth data based on view mode
+  // Fetch Revenue Growth data (LEFT CHART - Earnings)
+  useEffect(() => {
+    const fetchRevenueGrowth = async () => {
+      try {
+        setIsLoadingRevenueChart(true);
+        
+        if (revenueViewMode === 'monthly') {
+          const res = await api.get(`api/payments/earnings/monthly?year=${revenueYear}`);
+          setRevenueGrowthData(res.data);
+        } else {
+          const res = await api.get(`api/payments/earnings/daily?year=${revenueYear}&month=${revenueMonth}`);
+          setRevenueGrowthData(res.data);
+        }
+      } catch (error) {
+        console.error('Error fetching revenue growth:', error);
+      } finally {
+        setIsLoadingRevenueChart(false);
+      }
+    };
+
+    fetchRevenueGrowth();
+  }, [revenueViewMode, revenueYear, revenueMonth]);
+
+  // Fetch Monthly Earnings data (RIGHT CHART - Earnings)
+  useEffect(() => {
+    const fetchMonthlyEarnings = async () => {
+      try {
+        setIsLoadingEarningsChart(true);
+        
+        if (earningsViewMode === 'monthly') {
+          const res = await api.get(`api/payments/earnings/monthly?year=${earningsYear}`);
+          setMonthlyEarningsData(res.data);
+        } else {
+          const res = await api.get(`api/payments/earnings/daily?year=${earningsYear}&month=${earningsMonth}`);
+          setMonthlyEarningsData(res.data);
+        }
+      } catch (error) {
+        console.error('Error fetching monthly earnings:', error);
+      } finally {
+        setIsLoadingEarningsChart(false);
+      }
+    };
+
+    fetchMonthlyEarnings();
+  }, [earningsViewMode, earningsYear, earningsMonth]);
+
+  // Fetch member growth data based on view mode (LEFT CHART)
   useEffect(() => {
     const fetchMemberGrowth = async () => {
       try {
@@ -146,6 +207,29 @@ export const Dashboard = () => {
     fetchMemberGrowth();
   }, [memberViewMode, selectedYear, selectedMonth]);
 
+  // Fetch new members data based on view mode (RIGHT CHART)
+  useEffect(() => {
+    const fetchNewMembers = async () => {
+      try {
+        setIsLoadingNewMembersChart(true);
+        
+        if (newMembersViewMode === 'monthly') {
+          const res = await api.get(`api/members/growth/monthly?year=${newMembersYear}`);
+          setNewMembersData(res.data);
+        } else {
+          const res = await api.get(`api/members/growth/daily?year=${newMembersYear}&month=${newMembersMonth}`);
+          setNewMembersData(res.data);
+        }
+      } catch (error) {
+        console.error('Error fetching new members:', error);
+      } finally {
+        setIsLoadingNewMembersChart(false);
+      }
+    };
+
+    fetchNewMembers();
+  }, [newMembersViewMode, newMembersYear, newMembersMonth]);
+
   const formatCurrency = (amount) => `${amount.toLocaleString()} DH`;
 
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -162,20 +246,18 @@ export const Dashboard = () => {
           <StatCard 
             title="Total Earnings" 
             value={formatCurrency(earningsStats.totalEarnings)} 
-            change={earningsStats.monthChange}
-            isPositive={earningsStats.monthChange.startsWith('+')}
-            isLoading={isLoadingEarnings}
+            isLoading={isLoadingStats}
           />
           <StatCard 
             title="This Month Earnings" 
             value={formatCurrency(earningsStats.thisMonthEarnings)} 
-            isLoading={isLoadingEarnings}
+            change={earningsStats.monthChange}
+            isPositive={earningsStats.monthChange.startsWith('+')}
+            isLoading={isLoadingStats}
           />
           <StatCard 
             title="Total Members" 
             value={memberStats.totalMembers.toLocaleString()} 
-            change={memberStats.memberChange}
-            isPositive={memberStats.memberChange.startsWith('+')}
             isLoading={isLoadingStats}
           />
         </div>
@@ -185,19 +267,69 @@ export const Dashboard = () => {
           
           {/* Revenue Growth Chart */}
           <div className="bg-[#111] border border-panda-border p-4 md:p-6 rounded-2xl">
-             <div className="flex justify-between items-center mb-6">
+             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <h3 className="text-lg font-semibold text-white">Revenue Growth</h3>
-                <span className="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded">Yearly</span>
+                
+                {/* Controls for Revenue Chart */}
+                <div className="flex flex-wrap gap-2">
+                  {/* View Toggle */}
+                  <div className="flex bg-black/50 rounded-lg p-1 border border-panda-border">
+                    <button
+                      onClick={() => setRevenueViewMode('monthly')}
+                      className={`px-3 py-1 text-xs rounded transition-all ${
+                        revenueViewMode === 'monthly'
+                          ? 'bg-panda-red text-white shadow-neon'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Monthly
+                    </button>
+                    <button
+                      onClick={() => setRevenueViewMode('daily')}
+                      className={`px-3 py-1 text-xs rounded transition-all ${
+                        revenueViewMode === 'daily'
+                          ? 'bg-panda-red text-white shadow-neon'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Daily
+                    </button>
+                  </div>
+
+                  {/* Year Selector */}
+                  <select
+                    value={revenueYear}
+                    onChange={(e) => setRevenueYear(Number(e.target.value))}
+                    className="bg-black border border-panda-border text-white text-xs px-3 py-1 rounded-lg focus:outline-none focus:border-panda-red"
+                  >
+                    {availableYears.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+
+                  {/* Month Selector - Only show in daily mode */}
+                  {revenueViewMode === 'daily' && (
+                    <select
+                      value={revenueMonth}
+                      onChange={(e) => setRevenueMonth(Number(e.target.value))}
+                      className="bg-black border border-panda-border text-white text-xs px-3 py-1 rounded-lg focus:outline-none focus:border-panda-red"
+                    >
+                      {monthNames.map((name, idx) => (
+                        <option key={idx} value={idx + 1}>{name}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
              </div>
              
-             {isLoadingEarnings ? (
+             {isLoadingRevenueChart ? (
                <div className="h-60 md:h-72 w-full flex items-center justify-center">
                  <div className="w-8 h-8 border-2 border-panda-red/30 border-t-panda-red rounded-full animate-spin"></div>
                </div>
              ) : (
                <div className="h-60 md:h-72 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={monthlyEarnings}>
+                    <AreaChart data={revenueGrowthData}>
                       <defs>
                         <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#E60000" stopOpacity={0.3}/>
@@ -217,19 +349,71 @@ export const Dashboard = () => {
 
           {/* Monthly Earnings Bar Chart */}
           <div className="bg-[#111] border border-panda-border p-4 md:p-6 rounded-2xl">
-             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold text-white">Monthly Earnings</h3>
-                <button className="text-gray-500 hover:text-white"><Icons.More className="w-5 h-5" /></button>
+             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h3 className="text-lg font-semibold text-white">
+                  {earningsViewMode === 'monthly' ? 'Monthly Earnings' : 'Daily Earnings'}
+                </h3>
+                
+                {/* Controls for Earnings Chart */}
+                <div className="flex flex-wrap gap-2">
+                  {/* View Toggle */}
+                  <div className="flex bg-black/50 rounded-lg p-1 border border-panda-border">
+                    <button
+                      onClick={() => setEarningsViewMode('monthly')}
+                      className={`px-3 py-1 text-xs rounded transition-all ${
+                        earningsViewMode === 'monthly'
+                          ? 'bg-panda-red text-white shadow-neon'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Monthly
+                    </button>
+                    <button
+                      onClick={() => setEarningsViewMode('daily')}
+                      className={`px-3 py-1 text-xs rounded transition-all ${
+                        earningsViewMode === 'daily'
+                          ? 'bg-panda-red text-white shadow-neon'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Daily
+                    </button>
+                  </div>
+
+                  {/* Year Selector */}
+                  <select
+                    value={earningsYear}
+                    onChange={(e) => setEarningsYear(Number(e.target.value))}
+                    className="bg-black border border-panda-border text-white text-xs px-3 py-1 rounded-lg focus:outline-none focus:border-panda-red"
+                  >
+                    {availableYears.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+
+                  {/* Month Selector - Only show in daily mode */}
+                  {earningsViewMode === 'daily' && (
+                    <select
+                      value={earningsMonth}
+                      onChange={(e) => setEarningsMonth(Number(e.target.value))}
+                      className="bg-black border border-panda-border text-white text-xs px-3 py-1 rounded-lg focus:outline-none focus:border-panda-red"
+                    >
+                      {monthNames.map((name, idx) => (
+                        <option key={idx} value={idx + 1}>{name}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
              </div>
              
-             {isLoadingEarnings ? (
+             {isLoadingEarningsChart ? (
                <div className="h-60 md:h-72 w-full flex items-center justify-center">
                  <div className="w-8 h-8 border-2 border-panda-red/30 border-t-panda-red rounded-full animate-spin"></div>
                </div>
              ) : (
                <div className="h-60 md:h-72 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={monthlyEarnings}>
+                    <BarChart data={monthlyEarningsData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
                       <XAxis dataKey="name" stroke="#555" tick={{fill: '#555'}} tickLine={false} axisLine={false} />
                       <YAxis stroke="#555" tick={{fill: '#555'}} tickLine={false} axisLine={false} tickFormatter={(value) => `${(value/1000).toFixed(0)}k`} />
@@ -338,17 +522,17 @@ export const Dashboard = () => {
           <div className="bg-[#111] border border-panda-border p-4 md:p-6 rounded-2xl">
              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <h3 className="text-lg font-semibold text-white">
-                  {memberViewMode === 'monthly' ? 'Monthly New Members' : 'Daily New Members'}
+                  {newMembersViewMode === 'monthly' ? 'Monthly New Members' : 'Daily New Members'}
                 </h3>
                 
-                {/* Same Controls as Member Growth */}
+                {/* Independent Controls for New Members Chart */}
                 <div className="flex flex-wrap gap-2">
                   {/* View Toggle */}
                   <div className="flex bg-black/50 rounded-lg p-1 border border-panda-border">
                     <button
-                      onClick={() => setMemberViewMode('monthly')}
+                      onClick={() => setNewMembersViewMode('monthly')}
                       className={`px-3 py-1 text-xs rounded transition-all ${
-                        memberViewMode === 'monthly'
+                        newMembersViewMode === 'monthly'
                           ? 'bg-panda-red text-white shadow-neon'
                           : 'text-gray-400 hover:text-white'
                       }`}
@@ -356,9 +540,9 @@ export const Dashboard = () => {
                       Monthly
                     </button>
                     <button
-                      onClick={() => setMemberViewMode('daily')}
+                      onClick={() => setNewMembersViewMode('daily')}
                       className={`px-3 py-1 text-xs rounded transition-all ${
-                        memberViewMode === 'daily'
+                        newMembersViewMode === 'daily'
                           ? 'bg-panda-red text-white shadow-neon'
                           : 'text-gray-400 hover:text-white'
                       }`}
@@ -369,8 +553,8 @@ export const Dashboard = () => {
 
                   {/* Year Selector */}
                   <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(Number(e.target.value))}
+                    value={newMembersYear}
+                    onChange={(e) => setNewMembersYear(Number(e.target.value))}
                     className="bg-black border border-panda-border text-white text-xs px-3 py-1 rounded-lg focus:outline-none focus:border-panda-red"
                   >
                     {availableYears.map(year => (
@@ -379,10 +563,10 @@ export const Dashboard = () => {
                   </select>
 
                   {/* Month Selector - Only show in daily mode */}
-                  {memberViewMode === 'daily' && (
+                  {newMembersViewMode === 'daily' && (
                     <select
-                      value={selectedMonth}
-                      onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                      value={newMembersMonth}
+                      onChange={(e) => setNewMembersMonth(Number(e.target.value))}
                       className="bg-black border border-panda-border text-white text-xs px-3 py-1 rounded-lg focus:outline-none focus:border-panda-red"
                     >
                       {monthNames.map((name, idx) => (
@@ -393,14 +577,14 @@ export const Dashboard = () => {
                 </div>
              </div>
              
-             {isLoadingMemberChart ? (
+             {isLoadingNewMembersChart ? (
                <div className="h-60 md:h-72 w-full flex items-center justify-center">
                  <div className="w-8 h-8 border-2 border-panda-red/30 border-t-panda-red rounded-full animate-spin"></div>
                </div>
              ) : (
                <div className="h-60 md:h-72 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={memberGrowthData}>
+                    <BarChart data={newMembersData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
                       <XAxis 
                         dataKey="name" 

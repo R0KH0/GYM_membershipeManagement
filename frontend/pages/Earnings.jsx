@@ -60,11 +60,31 @@ export const Earnings = () => {
     ytdEarnings: 0,
     monthChange: '+0%'
   });
-  const [monthlyData, setMonthlyData] = useState([]);
+
+  // Chart data - SEPARATE for each chart
+  const [revenueGrowthData, setRevenueGrowthData] = useState([]);
+  const [monthlyEarningsData, setMonthlyEarningsData] = useState([]);
+  
   const [transactions, setTransactions] = useState([]);
+
+  // View toggles for Revenue Growth chart (LEFT CHART)
+  const [revenueViewMode, setRevenueViewMode] = useState('monthly');
+  const [revenueYear, setRevenueYear] = useState(new Date().getFullYear());
+  const [revenueMonth, setRevenueMonth] = useState(new Date().getMonth() + 1);
+
+  // View toggles for Monthly Earnings chart (RIGHT CHART)
+  const [earningsViewMode, setEarningsViewMode] = useState('monthly');
+  const [earningsYear, setEarningsYear] = useState(new Date().getFullYear());
+  const [earningsMonth, setEarningsMonth] = useState(new Date().getMonth() + 1);
+
+  // Loading states
   const [isLoadingStats, setIsLoadingStats] = useState(true);
-  const [isLoadingChart, setIsLoadingChart] = useState(true);
+  const [isLoadingRevenueChart, setIsLoadingRevenueChart] = useState(true);
+  const [isLoadingEarningsChart, setIsLoadingEarningsChart] = useState(true);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
+
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const availableYears = [2023, 2024, 2025, 2026];
 
   // Fetch earnings statistics
   useEffect(() => {
@@ -83,22 +103,51 @@ export const Earnings = () => {
     fetchStats();
   }, []);
 
-  // Fetch monthly earnings data
+  // Fetch Revenue Growth data (LEFT CHART)
   useEffect(() => {
-    const fetchMonthlyData = async () => {
+    const fetchRevenueGrowth = async () => {
       try {
-        setIsLoadingChart(true);
-        const res = await api.get('api/payments/earnings/monthly');
-        setMonthlyData(res.data);
+        setIsLoadingRevenueChart(true);
+        
+        if (revenueViewMode === 'monthly') {
+          const res = await api.get(`api/payments/earnings/monthly?year=${revenueYear}`);
+          setRevenueGrowthData(res.data);
+        } else {
+          const res = await api.get(`api/payments/earnings/daily?year=${revenueYear}&month=${revenueMonth}`);
+          setRevenueGrowthData(res.data);
+        }
       } catch (error) {
-        console.error('Error fetching monthly data:', error);
+        console.error('Error fetching revenue growth:', error);
       } finally {
-        setIsLoadingChart(false);
+        setIsLoadingRevenueChart(false);
       }
     };
 
-    fetchMonthlyData();
-  }, []);
+    fetchRevenueGrowth();
+  }, [revenueViewMode, revenueYear, revenueMonth]);
+
+  // Fetch Monthly Earnings data (RIGHT CHART)
+  useEffect(() => {
+    const fetchMonthlyEarnings = async () => {
+      try {
+        setIsLoadingEarningsChart(true);
+        
+        if (earningsViewMode === 'monthly') {
+          const res = await api.get(`api/payments/earnings/monthly?year=${earningsYear}`);
+          setMonthlyEarningsData(res.data);
+        } else {
+          const res = await api.get(`api/payments/earnings/daily?year=${earningsYear}&month=${earningsMonth}`);
+          setMonthlyEarningsData(res.data);
+        }
+      } catch (error) {
+        console.error('Error fetching monthly earnings:', error);
+      } finally {
+        setIsLoadingEarningsChart(false);
+      }
+    };
+
+    fetchMonthlyEarnings();
+  }, [earningsViewMode, earningsYear, earningsMonth]);
 
   // Fetch recent transactions
   useEffect(() => {
@@ -185,23 +234,71 @@ ROKHO's Gym
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           
-          {/* Revenue Growth Chart */}
+          {/* Revenue Growth Chart - WITH INDEPENDENT CONTROLS */}
           <div className="bg-[#111] border border-panda-border p-4 md:p-6 rounded-2xl">
-             <div className="flex justify-between items-center mb-6">
+             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <h3 className="text-lg font-semibold text-white">Revenue Growth</h3>
-                <div className="flex gap-2">
-                    <span className="text-xs text-white bg-panda-red px-2 py-1 rounded shadow-neon">Yearly</span>
+                
+                {/* Controls for Revenue Chart */}
+                <div className="flex flex-wrap gap-2">
+                  {/* View Toggle */}
+                  <div className="flex bg-black/50 rounded-lg p-1 border border-panda-border">
+                    <button
+                      onClick={() => setRevenueViewMode('monthly')}
+                      className={`px-3 py-1 text-xs rounded transition-all ${
+                        revenueViewMode === 'monthly'
+                          ? 'bg-panda-red text-white shadow-neon'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Monthly
+                    </button>
+                    <button
+                      onClick={() => setRevenueViewMode('daily')}
+                      className={`px-3 py-1 text-xs rounded transition-all ${
+                        revenueViewMode === 'daily'
+                          ? 'bg-panda-red text-white shadow-neon'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Daily
+                    </button>
+                  </div>
+
+                  {/* Year Selector */}
+                  <select
+                    value={revenueYear}
+                    onChange={(e) => setRevenueYear(Number(e.target.value))}
+                    className="bg-black border border-panda-border text-white text-xs px-3 py-1 rounded-lg focus:outline-none focus:border-panda-red"
+                  >
+                    {availableYears.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+
+                  {/* Month Selector - Only show in daily mode */}
+                  {revenueViewMode === 'daily' && (
+                    <select
+                      value={revenueMonth}
+                      onChange={(e) => setRevenueMonth(Number(e.target.value))}
+                      className="bg-black border border-panda-border text-white text-xs px-3 py-1 rounded-lg focus:outline-none focus:border-panda-red"
+                    >
+                      {monthNames.map((name, idx) => (
+                        <option key={idx} value={idx + 1}>{name}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
              </div>
              
-             {isLoadingChart ? (
+             {isLoadingRevenueChart ? (
                <div className="h-60 md:h-72 w-full flex items-center justify-center">
                  <div className="w-8 h-8 border-2 border-panda-red/30 border-t-panda-red rounded-full animate-spin"></div>
                </div>
              ) : (
                <div className="h-60 md:h-72 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={monthlyData}>
+                    <AreaChart data={revenueGrowthData}>
                       <defs>
                         <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#E60000" stopOpacity={0.3}/>
@@ -219,20 +316,73 @@ ROKHO's Gym
              )}
           </div>
 
-          {/* Monthly Earnings Bar Chart */}
+          {/* Monthly Earnings Bar Chart - WITH INDEPENDENT CONTROLS */}
           <div className="bg-[#111] border border-panda-border p-4 md:p-6 rounded-2xl">
-             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold text-white">Monthly Earnings</h3>
+             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h3 className="text-lg font-semibold text-white">
+                  {earningsViewMode === 'monthly' ? 'Monthly Earnings' : 'Daily Earnings'}
+                </h3>
+                
+                {/* Controls for Earnings Chart */}
+                <div className="flex flex-wrap gap-2">
+                  {/* View Toggle */}
+                  <div className="flex bg-black/50 rounded-lg p-1 border border-panda-border">
+                    <button
+                      onClick={() => setEarningsViewMode('monthly')}
+                      className={`px-3 py-1 text-xs rounded transition-all ${
+                        earningsViewMode === 'monthly'
+                          ? 'bg-panda-red text-white shadow-neon'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Monthly
+                    </button>
+                    <button
+                      onClick={() => setEarningsViewMode('daily')}
+                      className={`px-3 py-1 text-xs rounded transition-all ${
+                        earningsViewMode === 'daily'
+                          ? 'bg-panda-red text-white shadow-neon'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Daily
+                    </button>
+                  </div>
+
+                  {/* Year Selector */}
+                  <select
+                    value={earningsYear}
+                    onChange={(e) => setEarningsYear(Number(e.target.value))}
+                    className="bg-black border border-panda-border text-white text-xs px-3 py-1 rounded-lg focus:outline-none focus:border-panda-red"
+                  >
+                    {availableYears.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+
+                  {/* Month Selector - Only show in daily mode */}
+                  {earningsViewMode === 'daily' && (
+                    <select
+                      value={earningsMonth}
+                      onChange={(e) => setEarningsMonth(Number(e.target.value))}
+                      className="bg-black border border-panda-border text-white text-xs px-3 py-1 rounded-lg focus:outline-none focus:border-panda-red"
+                    >
+                      {monthNames.map((name, idx) => (
+                        <option key={idx} value={idx + 1}>{name}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
              </div>
              
-             {isLoadingChart ? (
+             {isLoadingEarningsChart ? (
                <div className="h-60 md:h-72 w-full flex items-center justify-center">
                  <div className="w-8 h-8 border-2 border-panda-red/30 border-t-panda-red rounded-full animate-spin"></div>
                </div>
              ) : (
                <div className="h-60 md:h-72 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={monthlyData}>
+                    <BarChart data={monthlyEarningsData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
                       <XAxis dataKey="name" stroke="#555" tick={{fill: '#555'}} tickLine={false} axisLine={false} />
                       <YAxis stroke="#555" tick={{fill: '#555'}} tickLine={false} axisLine={false} tickFormatter={(value) => `${(value/1000).toFixed(0)}k`} />
