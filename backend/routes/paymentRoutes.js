@@ -5,6 +5,7 @@ import {
   getAllPayments,
   getEarningsStats,
   getMonthlyEarnings,
+  getDailyEarnings,
   getPaymentsByMember,
   deletePayment
 } from "../controllers/paymentController.js";
@@ -22,6 +23,6 @@ router.delete("/delete/:paymentId", deletePayment);
 // Earnings/Statistics routes
 router.get("/earnings/stats", getEarningsStats);
 router.get("/earnings/monthly", getMonthlyEarnings);
-
+router.get("/earnings/daily", getDailyEarnings);
 
 export default router;
