@@ -1,9 +1,9 @@
 import Member from "../models/memberModel.js";
-import { createNotification } from "./notificationController.js";
+import User from "../models/userModel.js";
 
 // Create member
 export const createMember = async (req, res) => {
-  const { firstName, lastName, email, phone, startDate, endDate, notes, status  } = req.body;
+  const { firstName, lastName, email, phone, startDate, endDate, notes, status } = req.body;
 
   try {
     // check if existing member by name + phone
@@ -21,20 +21,11 @@ export const createMember = async (req, res) => {
       endDate,
       notes,
       status: status || "pending",
-      createdBy: req.user._id, // requires auth middleware
+      createdBy: req.user._id,
     });
 
     await newMember.save();
-    await newMember.populate('createdBy', 'name email');
-
-    // CREATE NOTIFICATION FOR OTHER USERS
-    const memberName = `${firstName} ${lastName}`.trim();
-    await createNotification(
-      'member_added',
-      `${memberName} was added by ${req.user.name}`,
-      newMember._id,
-      req.user._id
-    );
+    await newMember.populate("createdBy", "name email");
 
     return res.status(201).json({
       message: "Member created successfully",
@@ -49,8 +40,8 @@ export const createMember = async (req, res) => {
 export const getAllMembers = async (req, res) => {
   try {
     const members = await Member.find()
-      .populate('createdBy', 'name email') // Only select name and email fields
-      .sort({ createdAt: -1 }); // Sort by newest first
+      .populate("createdBy", "name email")
+      .sort({ createdAt: -1 });
 
     res.status(200).json(members);
   } catch (error) {
@@ -61,7 +52,7 @@ export const getAllMembers = async (req, res) => {
 
 // Update member by ID
 export const updateMemberById = async (req, res) => {
-  const { id } = req.params; // use ID from route params
+  const { id } = req.params;
   const { firstName, lastName, email, phone, status, startDate, endDate, notes } = req.body;
 
   try {
@@ -69,7 +60,7 @@ export const updateMemberById = async (req, res) => {
       id,
       { firstName, lastName, email, phone, status, startDate, endDate, notes },
       { new: true }
-    ).populate('createdBy', 'name email');
+    ).populate("createdBy", "name email");
 
     if (!updated) {
       return res.status(404).json({ message: "Member not found" });
@@ -86,7 +77,7 @@ export const updateMemberById = async (req, res) => {
 
 // Delete member by ID
 export const deleteMemberById = async (req, res) => {
-  const { id } = req.params; // use ID from route params
+  const { id } = req.params;
 
   try {
     const deleted = await Member.findByIdAndDelete(id);
@@ -101,7 +92,6 @@ export const deleteMemberById = async (req, res) => {
   }
 };
 
-
 // Get member statistics (for dashboard stat cards)
 export const getMemberStats = async (req, res) => {
   try {
@@ -109,39 +99,35 @@ export const getMemberStats = async (req, res) => {
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth();
     const startOfMonth = new Date(currentYear, currentMonth, 1);
-    
-    // Total members
+
     const totalMembers = await Member.countDocuments();
-    
-    // Active members
-    const activeMembers = await Member.countDocuments({ status: 'active' });
-    
-    // New members this month
+    const activeMembers = await Member.countDocuments({ status: "active" });
     const newMembersThisMonth = await Member.countDocuments({
-      createdAt: { $gte: startOfMonth }
+      createdAt: { $gte: startOfMonth },
     });
-    
-    // Previous month for comparison
+
     const prevMonthStart = new Date(currentYear, currentMonth - 1, 1);
     const prevMonthEnd = new Date(currentYear, currentMonth, 0, 23, 59, 59);
     const newMembersPrevMonth = await Member.countDocuments({
-      createdAt: { $gte: prevMonthStart, $lte: prevMonthEnd }
+      createdAt: { $gte: prevMonthStart, $lte: prevMonthEnd },
     });
-    
-    // Calculate month-over-month change
-    const memberChange = newMembersPrevMonth > 0 
-      ? (((newMembersThisMonth - newMembersPrevMonth) / newMembersPrevMonth) * 100).toFixed(1)
-      : 0;
-    
+
+    const memberChange =
+      newMembersPrevMonth > 0
+        ? (
+            ((newMembersThisMonth - newMembersPrevMonth) / newMembersPrevMonth) *
+            100
+          ).toFixed(1)
+        : 0;
+
     res.status(200).json({
       totalMembers,
       activeMembers,
       newMembersThisMonth,
-      memberChange: `${memberChange >= 0 ? '+' : ''}${memberChange}%`
+      memberChange: `${memberChange >= 0 ? "+" : ""}${memberChange}%`,
     });
-    
   } catch (error) {
-    console.error('Error fetching member stats:', error);
+    console.error("Error fetching member stats:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -149,55 +135,67 @@ export const getMemberStats = async (req, res) => {
 // Get member growth data - MONTHLY view for entire year
 export const getMonthlyMemberGrowth = async (req, res) => {
   try {
-    const year = req.query.year ? parseInt(req.query.year) : new Date().getFullYear();
-    
-    // Get new members grouped by month
+    const year = req.query.year
+      ? parseInt(req.query.year)
+      : new Date().getFullYear();
+
     const monthlyNewMembers = await Member.aggregate([
       {
         $match: {
           createdAt: {
             $gte: new Date(year, 0, 1),
-            $lte: new Date(year, 11, 31, 23, 59, 59)
-          }
-        }
+            $lte: new Date(year, 11, 31, 23, 59, 59),
+          },
+        },
       },
       {
         $group: {
           _id: { $month: "$createdAt" },
-          newMembers: { $sum: 1 }
-        }
+          newMembers: { $sum: 1 },
+        },
       },
-      { $sort: { _id: 1 } }
+      { $sort: { _id: 1 } },
     ]);
-    
-    // Get total members at the end of each month
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const chartData = [];
-    
+
     for (let i = 0; i < 12; i++) {
       const monthIndex = i + 1;
       const endOfMonth = new Date(year, i, 31, 23, 59, 59);
-      
-      // Count total members created up to this month
+
       const totalMembers = await Member.countDocuments({
-        createdAt: { $lte: endOfMonth }
+        createdAt: { $lte: endOfMonth },
       });
-      
-      // Get new members for this month
-      const monthData = monthlyNewMembers.find(m => m._id === monthIndex);
+
+      const monthData = monthlyNewMembers.find(
+        (m) => m._id === monthIndex
+      );
       const newMembers = monthData?.newMembers || 0;
-      
+
       chartData.push({
         name: monthNames[i],
         totalMembers,
-        newMembers
+        newMembers,
       });
     }
-    
+
     res.status(200).json(chartData);
-    
   } catch (error) {
-    console.error('Error fetching monthly member growth:', error);
+    console.error("Error fetching monthly member growth:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -205,59 +203,58 @@ export const getMonthlyMemberGrowth = async (req, res) => {
 // Get member growth data - DAILY view for specific month
 export const getDailyMemberGrowth = async (req, res) => {
   try {
-    const year = req.query.year ? parseInt(req.query.year) : new Date().getFullYear();
-    const month = req.query.month ? parseInt(req.query.month) - 1 : new Date().getMonth(); // month is 0-indexed
-    
-    // Get number of days in the month
+    const year = req.query.year
+      ? parseInt(req.query.year)
+      : new Date().getFullYear();
+    const month = req.query.month
+      ? parseInt(req.query.month) - 1
+      : new Date().getMonth();
+
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
-    // Get new members grouped by day for the specified month
+
     const dailyNewMembers = await Member.aggregate([
       {
         $match: {
           createdAt: {
             $gte: new Date(year, month, 1),
-            $lte: new Date(year, month, daysInMonth, 23, 59, 59)
-          }
-        }
+            $lte: new Date(year, month, daysInMonth, 23, 59, 59),
+          },
+        },
       },
       {
         $group: {
           _id: { $dayOfMonth: "$createdAt" },
-          newMembers: { $sum: 1 }
-        }
+          newMembers: { $sum: 1 },
+        },
       },
-      { $sort: { _id: 1 } }
+      { $sort: { _id: 1 } },
     ]);
-    
-    // Build chart data for each day of the month
+
     const chartData = [];
     let cumulativeMembers = 0;
-    
-    // Get total members before this month
+
     const beforeMonth = await Member.countDocuments({
-      createdAt: { $lt: new Date(year, month, 1) }
+      createdAt: { $lt: new Date(year, month, 1) },
     });
-    
+
     cumulativeMembers = beforeMonth;
-    
+
     for (let day = 1; day <= daysInMonth; day++) {
-      const dayData = dailyNewMembers.find(d => d._id === day);
+      const dayData = dailyNewMembers.find((d) => d._id === day);
       const newMembers = dayData?.newMembers || 0;
       cumulativeMembers += newMembers;
-      
+
       chartData.push({
         name: `${day}`,
         day: day,
         totalMembers: cumulativeMembers,
-        newMembers
+        newMembers,
       });
     }
-    
+
     res.status(200).json(chartData);
-    
   } catch (error) {
-    console.error('Error fetching daily member growth:', error);
+    console.error("Error fetching daily member growth:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
